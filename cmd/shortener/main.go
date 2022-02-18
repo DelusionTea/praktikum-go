@@ -5,7 +5,6 @@ import (
 	"github.com/DelusionTea/praktikum-go/internal/app/handlers"
 	"log"
 	"net/http"
-	Shorting "../../internal/app/handlers/"
 )
 
 func main() {
