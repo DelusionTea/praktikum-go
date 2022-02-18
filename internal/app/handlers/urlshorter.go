@@ -1,12 +1,11 @@
 package urlshorter
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"net/http"
 	"strconv"
-	"sync"
+	"github.com/DelusionTea/praktikum-go/cmd/shortener"
 )
 
 type longShortURLs struct {
