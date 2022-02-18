@@ -1,9 +1,9 @@
 package main
 
 import (
-    "net/http"
 	"github.com/julienschmidt/httprouter"
-	"github.com/DelusionTea/praktikum-go/blob/main/internal/app/handlers/"
+	"log"
+	"net/http"
 )
 
 func main() {
