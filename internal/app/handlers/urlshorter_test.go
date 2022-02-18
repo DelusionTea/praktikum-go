@@ -1,8 +1,3 @@
-package handlers
-
-import "testing"
-
-package handlers
 
 import (
 	"github.com/stretchr/testify/assert"
