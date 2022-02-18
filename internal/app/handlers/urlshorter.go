@@ -1,11 +1,10 @@
-package urlshorter
-
 import (
 	"fmt"
 	"io"
 	"net/http"
 	"strconv"
 	"github.com/julienschmidt/httprouter"
+	"log"
 )
 
 type longShortURLs struct {
