@@ -1,4 +1,4 @@
-package urlshorter_test
+package handlers
 
 import "testing"
 
