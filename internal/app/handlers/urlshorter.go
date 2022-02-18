@@ -34,7 +34,7 @@ func HandlerCreateShortURL(w http.ResponseWriter, r *http.Request, _ httprouter.
    long := string(body)
    w.Header().Set("Content-Type", "text/plain")
    w.WriteHeader(201)
-   short := Shorting(*id)
+   short := Shorter(*id)
    mapURLs[*id] = longShortURLs{
 	   Long: long,
 	   Short: short,
