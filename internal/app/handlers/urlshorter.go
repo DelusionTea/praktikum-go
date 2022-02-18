@@ -1,3 +1,5 @@
+package urlshorter
+
 import (
 	"fmt"
 	"io"
