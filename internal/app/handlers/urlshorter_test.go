@@ -22,14 +22,14 @@ func TestHandlerCreateShortURL(t *testing.T) {
 		// TODO: Add test cases.
 		{
             name: "positive test",
-			request "/",
+			request: "/",
             want: want{
                 code:        201,
             },
         },
 		{
             name: "negative test",
-			request "/wrong",
+			request: "/wrong",
             want: want{
                 code:        404,
             },
@@ -71,7 +71,7 @@ func TestHandlerGetURLByID(t *testing.T) {
 		// TODO: Add test cases.
 		{
             name: "positive test #1",
-			request "/1",
+			request: "/1",
 			id: 1,
 			long: "http://somesite.com"
             want: want{
@@ -81,7 +81,7 @@ func TestHandlerGetURLByID(t *testing.T) {
         },
 		{
             name: "not correct",
-			request "/2",
+			request: "/2",
 			id: 2,
 			long: "http://anothersomesite.com"
             want: want{
