@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/julienschmidt/httprouter"
-	"github.com/Delusionkind/internal/app/handlers"
+	"github.com/DelusionTea/praktikum-go/internal/app/handlers"
 	"log"
 	"net/http"
 )
