@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-	"github.com/DelusionTea/praktikum-go/cmd/shortener"
+	"github.com/julienschmidt/httprouter"
 )
 
 type longShortURLs struct {
