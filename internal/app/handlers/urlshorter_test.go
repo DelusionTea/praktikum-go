@@ -2,22 +2,22 @@ package handlers
 
 import (
 	"github.com/stretchr/testify/assert"
-    "github.com/stretchr/testify/require"
-	"io/ioutil"
+    //"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"github.com/julienschmidt/httprouter"
 )
 
 func TestHandlerCreateShortURL(t *testing.T) {
-	type args struct {
-		w   http.ResponseWriter
-		r   *http.Request
-		in2 httprouter.Params
+	type want struct {
+		code int
 	}
+
 	tests := []struct {
 		name string
 		request string
+		want want
 	}{
 		// TODO: Add test cases.
 		{
@@ -49,16 +49,15 @@ func TestHandlerCreateShortURL(t *testing.T) {
 			result := rr.Result()
 			defer result.Body.Close()
 
-			assert.Equal(t, tt.want.statusCode, result.StatusCode)
+			assert.Equal(t, tt.want.code, result.StatusCode)
 		})
 	}
 }
 
 func TestHandlerGetURLByID(t *testing.T) {
-	type args struct {
-		w      http.ResponseWriter
-		r      *http.Request
-		params httprouter.Params
+	type want struct {
+		contentType      string
+		code     int
 	}
 	tests := []struct {
 		name string
@@ -66,14 +65,14 @@ func TestHandlerGetURLByID(t *testing.T) {
 		long string
 		id int
 		mapURLs map[int]longShortURLs
-		args args
+		want want
 	}{
 		// TODO: Add test cases.
 		{
             name: "positive test #1",
 			request: "/1",
 			id: 1,
-			long: "http://somesite.com"
+			long: "http://somesite.com",
             want: want{
                 code:        307,
                 contentType: "text/plain",
@@ -83,7 +82,7 @@ func TestHandlerGetURLByID(t *testing.T) {
             name: "not correct",
 			request: "/2",
 			id: 2,
-			long: "http://anothersomesite.com"
+			long: "http://anothersomesite.com",
             want: want{
                 code:        400,
                 contentType: "text/plain",
@@ -94,7 +93,7 @@ func TestHandlerGetURLByID(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			for _, tt := range tests {
 				short := Shorter(1)
-				shorts[tt.id] = URLs{
+				mapURLs[tt.id] = longShortURLs{
 					Long: tt.long,
 					Short: short,
 				}
@@ -110,7 +109,7 @@ func TestHandlerGetURLByID(t *testing.T) {
 
 				result := rr.Result()
 				defer result.Body.Close()
-				assert.Equal(t, tt.want.statusCode, result.StatusCode)
+				assert.Equal(t, tt.want.code, result.StatusCode)
 			}
 		})
 	}
