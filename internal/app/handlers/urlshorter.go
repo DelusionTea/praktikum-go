@@ -18,14 +18,14 @@ const endpoint = "http://localhost:8080/"
 
 var mapURLs = make(map[int]longShortURLs)
 
-var globalId = 1
+var globalID = 1
 
 func Shorter(id int) string {
 	return fmt.Sprintf("%s%d", endpoint, id)
 }
 
 func HandlerCreateShortURL(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-   id := &globalId
+   id := &globalID
    defer r.Body.Close()
    body, err := io.ReadAll(r.Body)
    if err != nil {
