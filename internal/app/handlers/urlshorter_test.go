@@ -78,20 +78,18 @@ func TestHandlerGetURLByID(t *testing.T) {
                 contentType: "text/plain",
             },
         },
-		// {
-        //     name: "not correct",
-		// 	request: "/2",
-		// 	id: 2,
-		// 	long: "http://anothersomesite.com",
-        //     want: want{
-        //         code:        400,
-        //         contentType: "text/plain",
-        //     },
-        // },
+		{
+            name: "not correct",
+			request: "/2",
+			id: 2,
+            want: want{
+                code:        400,
+                contentType: "text/plain",
+            },
+        },
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			for _, tt := range tests {
 				short := Shorter(1)
 				mapURLs[tt.id] = longShortURLs{
 					Long: tt.long,
@@ -110,7 +108,7 @@ func TestHandlerGetURLByID(t *testing.T) {
 				result := rr.Result()
 				defer result.Body.Close()
 				assert.Equal(t, tt.want.code, result.StatusCode)
-			}
+
 		})
 	}
 }
