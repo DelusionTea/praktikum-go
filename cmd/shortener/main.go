@@ -8,6 +8,7 @@ import (
 )
 
 func main() {
+
 	router := httprouter.New()
 	router.POST("/", handlers.HandlerCreateShortURL)
 	router.GET("/:id", handlers.HandlerGetURLByID)
