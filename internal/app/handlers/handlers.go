@@ -31,6 +31,8 @@ func NewHandler(config *conf.Config) *Handler {
 
 }
 func (h *Handler) CallHandlers(router chi.Router) {
+	log.Println("i'm here")
+	log.Println(h)
 	router.Post("/", h.HandlerCreateShortURL)
 	router.Get("/{ID}", h.HandlerGetURLByID)
 	router.Post("/api/shorten", h.HandlerShortenURL)
@@ -51,7 +53,9 @@ func (h *Handler) HandlerCreateShortURL(w http.ResponseWriter, r *http.Request) 
 	w.WriteHeader(http.StatusCreated)
 	//short := shorter.shorter(h.baseURL)
 	short := h.repo.AddURL(string(body))
-	w.Write([]byte(short))
+	long, err := h.repo.GetURL(short)
+	w.Header().Set("Location", long)
+	//w.Write([]byte(short))
 }
 
 func (h *Handler) HandlerGetURLByID(w http.ResponseWriter, r *http.Request) {

@@ -11,8 +11,13 @@ import (
 func main() {
 
 	router := chi.NewRouter()
+	log.Println(router)
 	config := conf.GetConfig()
+	log.Println(config.BaseURL)
+	log.Println(config.FilePath)
+	log.Println(config.ServerAddress)
 	handler := handlers.NewHandler(config)
+	log.Println(handler)
 	handler.CallHandlers(router)
 	log.Fatal(http.ListenAndServe("localhost:8080", router))
 }
