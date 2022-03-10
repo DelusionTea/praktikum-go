@@ -1,18 +1,18 @@
 package main
 
 import (
-	"github.com/julienschmidt/httprouter"
+	"github.com/DelusionTea/praktikum-go/cmd/conf"
 	"github.com/DelusionTea/praktikum-go/internal/app/handlers"
+	"github.com/go-chi/chi/v5"
 	"log"
 	"net/http"
 )
 
 func main() {
-	//http.HandleFunc("/", myrequest)
-	router := httprouter.New()
-	router.POST("/", handlers.HandlerCreateShortURL)
-	router.GET("/:id", handlers.HandlerGetURLByID)
-	//Сервер должен быть доступен по адресу: http://localhost:8080.
-	//http.ListenAndServe(":8080", nil)
+
+	router := chi.NewRouter()
+	config := conf.GetConfig()
+	handler := handlers.NewHandler(config)
+	handler.CallHandlers(router)
 	log.Fatal(http.ListenAndServe("localhost:8080", router))
 }
