@@ -1,4 +1,4 @@
-package Shorter
+package shorter
 
 import (
 	"crypto/sha1"

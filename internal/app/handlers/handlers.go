@@ -3,7 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"github.com/DelusionTea/praktikum-go/cmd/conf"
-	memory "github.com/DelusionTea/praktikum-go/internal/Memory"
+	"github.com/DelusionTea/praktikum-go/internal/memory"
 	"github.com/go-chi/chi/v5"
 	//"github.com/julienschmidt/httprouter"
 	"io"
@@ -48,7 +48,7 @@ func (h *Handler) HandlerCreateShortURL(w http.ResponseWriter, r *http.Request) 
 	//long := string(body)
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusCreated)
-	//short := Shorter.Shorter(h.baseURL)
+	//short := shorter.shorter(h.baseURL)
 	short := h.repo.AddURL(string(body))
 	w.Write([]byte(short))
 }

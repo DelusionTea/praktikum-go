@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/DelusionTea/praktikum-go/cmd/conf"
-	"github.com/DelusionTea/praktikum-go/internal/app/Shorter"
+	"github.com/DelusionTea/praktikum-go/internal/app/shorter"
 	"log"
 	"os"
 )
@@ -99,7 +99,7 @@ func NewMemoryMap(filePath string) *MemoryMap {
 }
 
 func (repo *MemoryMap) AddURL(longURL string) string {
-	shortURL := Shorter.Shorter(longURL)
+	shortURL := shorter.Shorter(longURL)
 	repo.values[shortURL] = longURL
 	repo.writeRow(longURL, shortURL, repo.filePath)
 	return shortURL
