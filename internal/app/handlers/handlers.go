@@ -44,6 +44,7 @@ func (h *Handler) HandlerCreateShortURL(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		//http.Error(w, err.Error(), http.StatusInternalServerError)
 		//return
+		log.Println("error")
 	}
 	//long := string(body)
 	w.Header().Set("Content-Type", "text/plain")
@@ -61,6 +62,7 @@ func (h *Handler) HandlerGetURLByID(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		//http.Error(w, "Error", http.StatusBadRequest)
 		//return
+		log.Println("error")
 	}
 	log.Println(long)
 	if long == "" {
@@ -78,6 +80,7 @@ func (h *Handler) HandlerShortenURL(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(&h.baseURL); err != nil {
 		//http.Error(w, err.Error(), http.StatusBadRequest)
 		//return
+		log.Println("error")
 	}
 	defer r.Body.Close()
 
