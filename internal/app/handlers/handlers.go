@@ -41,10 +41,10 @@ func (h *Handler) HandlerCreateShortURL(w http.ResponseWriter, r *http.Request) 
 	body, err := io.ReadAll(r.Body)
 	defer r.Body.Close()
 
-	//if err != nil {
-	//	http.Error(w, err.Error(), http.StatusInternalServerError)
-	//	return
-	//}
+	if err != nil {
+		//http.Error(w, err.Error(), http.StatusInternalServerError)
+		//return
+	}
 	//long := string(body)
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusCreated)
@@ -58,10 +58,10 @@ func (h *Handler) HandlerGetURLByID(w http.ResponseWriter, r *http.Request) {
 	log.Println(param)
 	param = h.baseURL + param
 	long, err := h.repo.GetURL(param)
-	//if err != nil {
-	//	http.Error(w, "Error", http.StatusBadRequest)
-	//	return
-	//}
+	if err != nil {
+		//http.Error(w, "Error", http.StatusBadRequest)
+		//return
+	}
 	log.Println(long)
 	if long == "" {
 		http.Error(w, "id error", http.StatusBadRequest)
@@ -75,10 +75,10 @@ func (h *Handler) HandlerGetURLByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) HandlerShortenURL(w http.ResponseWriter, r *http.Request) {
-	//if err := json.NewDecoder(r.Body).Decode(&h.baseURL); err != nil {
-	//	http.Error(w, err.Error(), http.StatusBadRequest)
-	//	return
-	//}
+	if err := json.NewDecoder(r.Body).Decode(&h.baseURL); err != nil {
+		//http.Error(w, err.Error(), http.StatusBadRequest)
+		//return
+	}
 	defer r.Body.Close()
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
