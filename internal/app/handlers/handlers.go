@@ -74,7 +74,7 @@ func (h *Handler) HandlerCreateShortURL(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	w.Header().Set("Location", long)
-	//w.Write([]byte(short))
+	w.Write([]byte(short))
 }
 
 func (h *Handler) HandlerGetURLByID(w http.ResponseWriter, r *http.Request) {
