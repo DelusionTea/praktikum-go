@@ -5,6 +5,7 @@ import (
 	"github.com/DelusionTea/praktikum-go/internal/memory"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -54,13 +55,14 @@ func (h *Handler) HandlerCreateShortURL(c *gin.Context) {
 }
 
 func (h *Handler) HandlerShortenURL(c *gin.Context) {
+	log.Println("start Shorten")
 	result := map[string]string{}
 	var url PostURL
 
 	defer c.Request.Body.Close()
-
+	log.Println("Start read. Body:  ")
 	body, err := ioutil.ReadAll(c.Request.Body)
-
+	log.Print(body)
 	if err != nil {
 		result["detail"] = "Bad request"
 		c.IndentedJSON(http.StatusBadRequest, result)

@@ -59,7 +59,8 @@ func (repo *MemoryMap) writeRow(longURL string, shortURL string, filePath string
 func (repo *MemoryMap) readRow(reader *bufio.Scanner) (bool, error) {
 	log.Println("Start read Row")
 	if !reader.Scan() {
-		log.Println("error read row Scan")
+		log.Println("error read row Scan:  ")
+		log.Print(reader.Err())
 		return false, reader.Err()
 	}
 	data := reader.Bytes()
@@ -69,15 +70,16 @@ func (repo *MemoryMap) readRow(reader *bufio.Scanner) (bool, error) {
 	err := json.Unmarshal(data, row)
 
 	if err != nil {
-		log.Println("error read row  Unmarshal")
+		log.Println("error read row  Unmarshal:  ")
+		log.Print(err)
 		return false, err
 	}
 	repo.values[row.ShortURL] = row.LongURL
-	log.Println("readRow long URL:")
-	log.Println(row.LongURL)
+	log.Println("readRow long URL:  ")
+	log.Print(row.LongURL)
 
-	log.Println("readRow ShortURL:")
-	log.Println(row.ShortURL)
+	log.Println("readRow ShortURL:  ")
+	log.Print(row.ShortURL)
 	return true, nil
 }
 
@@ -106,8 +108,8 @@ func NewMemoryMap(filePath string) *MemoryMap {
 			break
 		}
 	}
-	log.Println("result of ReadRow")
-	log.Println(&repo)
+	log.Println("result of ReadRow: ")
+	log.Print(&repo)
 	return &repo
 }
 
@@ -116,15 +118,16 @@ func (repo *MemoryMap) AddURL(longURL string) string {
 	shortURL := shorter.Shorter(longURL)
 	repo.values[shortURL] = longURL
 	repo.writeRow(longURL, shortURL, repo.filePath)
-	log.Println("End Add URL")
-	log.Println(shortURL)
+	log.Println("End Add URL :")
+	log.Print(shortURL)
 	return shortURL
 }
 
 func (repo *MemoryMap) GetURL(shortURL string) (string, error) {
 	log.Println("Start Get URL")
 	resultURL, okey := repo.values[shortURL]
-	log.Println(resultURL)
+	log.Println("End Get URL :")
+	log.Print(resultURL)
 	if !okey {
 		return "", errors.New("not found")
 	}
@@ -132,6 +135,7 @@ func (repo *MemoryMap) GetURL(shortURL string) (string, error) {
 }
 
 func NewMemoryFile(filePath string) MemoryInterface {
-	log.Println("New Memory Map")
+	log.Println("New Memory Map: ")
+	log.Print(MemoryInterface(NewMemoryMap(filePath)))
 	return MemoryInterface(NewMemoryMap(filePath))
 }
