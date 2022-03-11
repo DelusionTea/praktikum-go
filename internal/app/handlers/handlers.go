@@ -2,132 +2,79 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/DelusionTea/praktikum-go/cmd/conf"
 	"github.com/DelusionTea/praktikum-go/internal/memory"
-	"github.com/go-chi/chi/v5"
-	//"github.com/julienschmidt/httprouter"
-	"io"
-	"log"
+	"github.com/gin-gonic/gin"
+	"io/ioutil"
 	"net/http"
 )
 
-type BodyResponse struct {
-	ResultURL string `json:"result"`
+type PostURL struct {
+	URL string
 }
 
 type Handler struct {
-	repo    *memory.MemoryMap
+	repo    memory.MemoryInterface
 	baseURL string
-	result  BodyResponse
 }
 
-const (
-	createURL  = "/"
-	getURL     = "/{articleID}"
-	shortenURL = "/api/shorten"
-)
-
-func NewHandler(config *conf.Config) *Handler {
+func New(repo memory.MemoryInterface, baseURL string) *Handler {
 	return &Handler{
-		baseURL: config.BaseURL,
-		repo:    memory.NewMemoryMap(config.FilePath),
+		repo:    repo,
+		baseURL: baseURL,
 	}
-
-}
-func (h *Handler) CallHandlers(router chi.Router) {
-	log.Println("Start Call Handlers")
-	router.Post(createURL, h.HandlerCreateShortURL)
-	router.Route(getURL, func(r chi.Router) {
-		r.Get("/", h.HandlerGetURLByID)
-	})
-	router.Post(shortenURL, h.HandlerShortenURL)
-	//
-	//log.Println("i'm here")
-	//log.Println(h)
-	//router.Post("/", h.HandlerCreateShortURL)
-	//router.Get("/{ID}", h.HandlerGetURLByID)
-	//router.Post("/api/shorten", h.HandlerShortenURL)
-
 }
 
-func (h *Handler) HandlerCreateShortURL(w http.ResponseWriter, r *http.Request) {
-	log.Println("Start Handler Create Short URL")
-	body, err := io.ReadAll(r.Body)
-	log.Println("body Handler Create Short URL")
-	log.Println(body)
-	defer r.Body.Close()
+func (h *Handler) HandlerGetURLByID(c *gin.Context) {
+	result := map[string]string{}
+	long, err := h.repo.GetURL(c.Param("id"))
+
 	if err != nil {
-		log.Println("error Handler Create Short URL")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		result["detail"] = err.Error()
+		c.IndentedJSON(http.StatusNotFound, result)
 		return
 	}
-	//long := string(body)
-	w.Header().Set("Content-Type", "text/plain")
-	w.WriteHeader(http.StatusCreated)
-	log.Println("added Content-Type, StatusCode Handler Create Short URL")
-	//short := shorter.shorter(h.baseURL)
+
+	c.Header("Location", long)
+	c.String(http.StatusTemporaryRedirect, "")
+}
+
+func (h *Handler) HandlerCreateShortURL(c *gin.Context) {
+	result := map[string]string{}
+	defer c.Request.Body.Close()
+
+	body, err := ioutil.ReadAll(c.Request.Body)
+
+	if err != nil {
+		result["detail"] = "Bad request"
+		c.IndentedJSON(http.StatusBadRequest, result)
+		return
+	}
 	short := h.repo.AddURL(string(body))
-	long, err := h.repo.GetURL(short)
-	log.Println("results: ahort, long")
-	log.Println(short)
-	log.Println(long)
-	if err != nil {
-		log.Println("error Handler Create Short URL")
-		http.Error(w, "Error", http.StatusBadRequest)
-		return
-	}
-	w.Header().Set("Location", long)
-	w.Write([]byte(short))
+	c.String(http.StatusCreated, h.baseURL+short)
 }
 
-func (h *Handler) HandlerGetURLByID(w http.ResponseWriter, r *http.Request) {
-	log.Println("Start Handler Get URL By ID. Param:")
-	param := chi.URLParam(r, "ID")
-	log.Println(param)
-	param = h.baseURL + param
-	log.Println(param)
-	long, err := h.repo.GetURL(param)
+func (h *Handler) HandlerShortenURL(c *gin.Context) {
+	result := map[string]string{}
+	var url PostURL
+
+	defer c.Request.Body.Close()
+
+	body, err := ioutil.ReadAll(c.Request.Body)
+
 	if err != nil {
-		log.Println("error Handler Get URL By ID")
-		http.Error(w, "Error", http.StatusBadRequest)
+		result["detail"] = "Bad request"
+		c.IndentedJSON(http.StatusBadRequest, result)
 		return
 	}
-	log.Println(long)
-	if long == "" {
-		log.Println("error Handler Get URL By ID")
-		http.Error(w, "id error", http.StatusBadRequest)
+	json.Unmarshal(body, &url)
+	if url.URL == "" {
+		result["detail"] = "Bad request"
+		c.IndentedJSON(http.StatusBadRequest, result)
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/plain")
-	w.Header().Set("Location", long)
-	w.WriteHeader(http.StatusTemporaryRedirect)
+	short := h.repo.AddURL(url.URL)
+	result["result"] = h.baseURL + short
+	c.IndentedJSON(http.StatusCreated, result)
 
-}
-
-func (h *Handler) HandlerShortenURL(w http.ResponseWriter, r *http.Request) {
-	log.Println("Start Handler Shorten URL")
-	log.Println("r.Body:")
-	log.Println(r.Body)
-	log.Println("&h.baseURL")
-	log.Println(&h.baseURL)
-	if err := json.NewDecoder(r.Body).Decode(&h.baseURL); err != nil {
-		log.Println("error HandlerShortenURL")
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	defer r.Body.Close()
-
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusCreated)
-
-	shortURL := h.repo.AddURL(h.baseURL)
-	h.result.ResultURL = shortURL
-	result, err := json.Marshal(h.result)
-	if err != nil {
-		log.Println("error HandlerShortenURL")
-		http.Error(w, err.Error(), 500)
-		return
-	}
-	w.Write([]byte(result))
 }
