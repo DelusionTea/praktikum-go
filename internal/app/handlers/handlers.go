@@ -78,10 +78,11 @@ func (h *Handler) HandlerCreateShortURL(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *Handler) HandlerGetURLByID(w http.ResponseWriter, r *http.Request) {
-	log.Println("Start Handler Get URL By ID")
+	log.Println("Start Handler Get URL By ID. Param:")
 	param := chi.URLParam(r, "ID")
 	log.Println(param)
 	param = h.baseURL + param
+	log.Println(param)
 	long, err := h.repo.GetURL(param)
 	if err != nil {
 		log.Println("error Handler Get URL By ID")
@@ -103,6 +104,10 @@ func (h *Handler) HandlerGetURLByID(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) HandlerShortenURL(w http.ResponseWriter, r *http.Request) {
 	log.Println("Start Handler Shorten URL")
+	log.Println("r.Body:")
+	log.Println(r.Body)
+	log.Println("&h.baseURL")
+	log.Println(&h.baseURL)
 	if err := json.NewDecoder(r.Body).Decode(&h.baseURL); err != nil {
 		log.Println("error HandlerShortenURL")
 		http.Error(w, err.Error(), http.StatusBadRequest)
