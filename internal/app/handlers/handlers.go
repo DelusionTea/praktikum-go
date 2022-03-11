@@ -16,37 +16,47 @@ type BodyResponse struct {
 }
 
 type Handler struct {
-	repo    memory.MemoryMap
+	repo    *memory.MemoryMap
 	baseURL string
 	result  BodyResponse
 }
 
-const endpoint = "http://localhost:8080/"
+const (
+	createURL  = "/"
+	getURL     = "/{articleID}"
+	shortenURL = "/api/shorten"
+)
 
 func NewHandler(config *conf.Config) *Handler {
 	return &Handler{
 		baseURL: config.BaseURL,
-		repo:    *memory.NewMemoryMap(config.FilePath),
+		repo:    memory.NewMemoryMap(config.FilePath),
 	}
 
 }
 func (h *Handler) CallHandlers(router chi.Router) {
-	log.Println("i'm here")
-	log.Println(h)
-	router.Post("/", h.HandlerCreateShortURL)
-	router.Get("/{ID}", h.HandlerGetURLByID)
-	router.Post("/api/shorten", h.HandlerShortenURL)
+
+	router.Post(createURL, h.HandlerCreateShortURL)
+	router.Route(getURL, func(r chi.Router) {
+		r.Get("/", h.HandlerGetURLByID)
+	})
+	router.Post(shortenURL, h.HandlerShortenURL)
+	//
+	//log.Println("i'm here")
+	//log.Println(h)
+	//router.Post("/", h.HandlerCreateShortURL)
+	//router.Get("/{ID}", h.HandlerGetURLByID)
+	//router.Post("/api/shorten", h.HandlerShortenURL)
 
 }
 
 func (h *Handler) HandlerCreateShortURL(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	defer r.Body.Close()
-
 	if err != nil {
-		//http.Error(w, err.Error(), http.StatusInternalServerError)
-		//return
-		log.Println("error")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+
 	}
 	//long := string(body)
 	w.Header().Set("Content-Type", "text/plain")
@@ -64,9 +74,8 @@ func (h *Handler) HandlerGetURLByID(w http.ResponseWriter, r *http.Request) {
 	param = h.baseURL + param
 	long, err := h.repo.GetURL(param)
 	if err != nil {
-		//http.Error(w, "Error", http.StatusBadRequest)
-		//return
-		log.Println("error")
+		http.Error(w, "Error", http.StatusBadRequest)
+		return
 	}
 	log.Println(long)
 	if long == "" {
@@ -82,9 +91,8 @@ func (h *Handler) HandlerGetURLByID(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) HandlerShortenURL(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(&h.baseURL); err != nil {
-		//http.Error(w, err.Error(), http.StatusBadRequest)
-		//return
-		log.Println("error")
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 	defer r.Body.Close()
 

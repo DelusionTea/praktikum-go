@@ -1,5 +1,11 @@
 package handlers
 
+import (
+	"github.com/DelusionTea/praktikum-go/internal/memory"
+	"net/http"
+	"testing"
+)
+
 //func TestHandlerCreateShortURL(t *testing.T) {
 //	type want struct {
 //		code int
@@ -108,7 +114,7 @@ package handlers
 
 //func TestHandler_HandlerShortenURL(t *testing.T) {
 //	type fields struct {
-//		repo    memory.MemoryInterface
+//		repo    memory.MemoryMap
 //		baseURL string
 //		result  BodyResponse
 //	}
@@ -132,8 +138,9 @@ package handlers
 //		args    args
 //		want    want
 //	}{
-//		// TODO: Add test cases.
+//
 //		{
+
 //			name:    "correct POST",
 //			query:   "api/shorten",
 //			body:    `{"url": "http://iloverestaurant.ru/"}`,
@@ -153,7 +160,136 @@ package handlers
 //				baseURL: tt.fields.baseURL,
 //				result:  tt.fields.result,
 //			}
-//			h.HandlerShortenURL(tt.args.w, tt.args.r, tt.args.in2)
+//			h.HandlerShortenURL(tt.args.w, tt.args.r)
 //		})
 //	}
 //}
+
+//func TestHandler_HandlerGetURLByID(t *testing.T) {
+//	type fields struct {
+//		repo    memory.MemoryMap
+//		baseURL string
+//		result  BodyResponse
+//	}
+//	type want struct {
+//		contentType string
+//		code        int
+//	}
+//	type args struct {
+//		w   http.ResponseWriter
+//		r   *http.Request
+//		in2 httprouter.Params
+//	}
+//	tests := []struct {
+//		name    string
+//		long    string
+//		body    string
+//		rawData string
+//		request string
+//		id      int
+//		result  string
+//		fields  fields
+//		args    args
+//		want    want
+//	}{
+//		{
+//			name:    "positive test #1",
+//			request: "http://localhost:8080/1",
+//			want: want{
+//				code:        307,
+//				contentType: "text/plain",
+//			},
+//		},
+//		// {
+//		//     name: "not correct",
+//		// 	request: "/2",
+//		// 	id: 2,
+//		// 	long: "http://anothersomesite.com",
+//		//     want: want{
+//		//         code:        400,
+//		//         contentType: "text/plain",
+//		//     },
+//		// },
+//	}
+//	for _, tt := range tests {
+//		t.Run(tt.name, func(t *testing.T) {
+//			h := &Handler{
+//				repo:    tt.fields.repo,
+//				baseURL: tt.fields.baseURL,
+//				result:  tt.fields.result,
+//			}
+//			h.HandlerGetURLByID(tt.args.w, tt.args.r)
+//		})
+//	}
+//}
+//
+//func TestHandler_HandlerCreateShortURL(t *testing.T) {
+//	type fields struct {
+//		repo    memory.MemoryMap
+//		baseURL string
+//		result  BodyResponse
+//	}
+//	type args struct {
+//		w http.ResponseWriter
+//		r *http.Request
+//	}
+//	tests := []struct {
+//		name   string
+//		fields fields
+//		args   args
+//	}{
+//		// TODO: Add test cases.
+//	}
+//	for _, tt := range tests {
+//		t.Run(tt.name, func(t *testing.T) {
+//			h := &Handler{
+//				repo:    tt.fields.repo,
+//				baseURL: tt.fields.baseURL,
+//				result:  tt.fields.result,
+//			}
+//			h.HandlerCreateShortURL(tt.args.w, tt.args.r)
+//		})
+//	}
+//}
+
+func TestHandler_HandlerCreateShortURL(t *testing.T) {
+	type fields struct {
+		repo    *memory.MemoryMap
+		baseURL string
+		result  BodyResponse
+	}
+	type want struct {
+		contentType string
+		code        int
+	}
+	type args struct {
+		w http.ResponseWriter
+		r *http.Request
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		request string
+		args    args
+		want    want
+	}{
+		// TODO: Add test cases.
+		{
+			name:    "positive test",
+			request: "/",
+			want: want{
+				code: 201,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			h := &Handler{
+				repo:    tt.fields.repo,
+				baseURL: tt.fields.baseURL,
+				result:  tt.fields.result,
+			}
+			h.HandlerCreateShortURL(tt.args.w, tt.args.r)
+		})
+	}
+}
