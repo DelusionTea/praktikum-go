@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"github.com/caarlos0/env"
 	"log"
-	"os"
-	"path/filepath"
 )
 
 const (
@@ -34,30 +32,31 @@ func GetConfig() *Config {
 		log.Fatal(err)
 	}
 
-	flagAddress := flag.String("a", ServerAddress, "Server address")
-	flagBaseURL := flag.String("b", BaseURL, "base url")
-	flagFilePath := flag.String("f", FileName, "file path")
+	flag.StringVar(&conf.ServerAddress, "a", ServerAddress, "Server address")
+	flag.StringVar(&conf.BaseURL, "b", BaseURL, "base url")
+
+	flag.StringVar(&conf.FilePath, "f", FileName, "file path")
 	//flag.Parse()
 
-	if *flagAddress != ServerAddress {
-		conf.ServerAddress = *flagAddress
+	if conf.ServerAddress == "" {
+		conf.ServerAddress = ServerAddress
 	}
-	if *flagBaseURL != BaseURL {
-		conf.BaseURL = *flagBaseURL
+	if conf.BaseURL == "" {
+		conf.BaseURL = BaseURL
 	}
-	if *flagFilePath != FileName {
-		conf.FilePath = *flagFilePath
+	if conf.FilePath == "" {
+		conf.FilePath = FileName
 	}
 
-	if conf.FilePath != FileName {
-		if _, err := os.Stat(filepath.Dir(conf.FilePath)); os.IsNotExist(err) {
-			log.Println("Creating folder")
-			err := os.Mkdir(filepath.Dir(conf.FilePath), FilePerm)
-			if err != nil {
-				log.Printf("Error: %v \n", err)
-			}
-		}
-	}
+	//if conf.FilePath != FileName {
+	//	if _, err := os.Stat(filepath.Dir(conf.FilePath)); os.IsNotExist(err) {
+	//		log.Println("Creating folder")
+	//		err := os.Mkdir(filepath.Dir(conf.FilePath), FilePerm)
+	//		if err != nil {
+	//			log.Printf("Error: %v \n", err)
+	//		}
+	//	}
+	//}
 
 	if string(conf.BaseURL[len(conf.BaseURL)-1]) != "/" {
 		conf.BaseURL += "/"

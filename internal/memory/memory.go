@@ -58,11 +58,11 @@ func (repo *MemoryMap) writeRow(longURL string, shortURL string, filePath string
 
 func (repo *MemoryMap) readRow(reader *bufio.Scanner) (bool, error) {
 	log.Println("Start read Row")
-	//if !reader.Scan() {
-	//	log.Println("error read row Scan:  ")
-	//	log.Print(reader.Err())
-	//	return false, reader.Err()
-	//}
+	if !reader.Scan() {
+		log.Println("error read row Scan:  ")
+		log.Print(reader.Err())
+		return false, reader.Err()
+	}
 	reader.Scan()
 	data := reader.Bytes()
 

@@ -62,10 +62,10 @@ func (h *Handler) HandlerShortenURL(c *gin.Context) {
 		c.IndentedJSON(http.StatusUnsupportedMediaType, headerContentType)
 		return
 	}
-
+	log.Println("start Shorten 65")
 	result := map[string]string{}
 	var url PostURL
-
+	log.Println("start Shorten  68")
 	defer c.Request.Body.Close()
 	log.Println("Start read. Body:  ")
 	body, err := ioutil.ReadAll(c.Request.Body)
