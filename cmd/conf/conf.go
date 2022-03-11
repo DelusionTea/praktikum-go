@@ -2,6 +2,7 @@ package conf
 
 import (
 	"flag"
+	"fmt"
 	"github.com/caarlos0/env"
 	"log"
 	"os"
@@ -28,6 +29,7 @@ func GetConfig() *Config {
 		FilePath:      FileName,
 		BaseURL:       BaseURL,
 	}
+	conf.BaseURL = fmt.Sprintf("http://%s/", conf.ServerAddress)
 	if err := env.Parse(&conf); err != nil {
 		log.Fatal(err)
 	}
