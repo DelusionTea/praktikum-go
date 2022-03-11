@@ -59,8 +59,8 @@ func (repo *MemoryMap) writeRow(longURL string, shortURL string, filePath string
 func (repo *MemoryMap) readRow(reader *bufio.Scanner) (bool, error) {
 	log.Println("Start read Row")
 	if !reader.Scan() {
-		return false, reader.Err()
 		log.Println("error read row")
+		return false, reader.Err()
 	}
 	data := reader.Bytes()
 
@@ -117,6 +117,7 @@ func (repo *MemoryMap) AddURL(longURL string) string {
 func (repo *MemoryMap) GetURL(shortURL string) (string, error) {
 	log.Println("Start Get URL")
 	resultURL, okey := repo.values[shortURL]
+	log.Println(resultURL)
 	if !okey {
 		return "", errors.New("not found")
 	}
