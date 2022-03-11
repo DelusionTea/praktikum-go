@@ -60,11 +60,11 @@ func (h *Handler) HandlerCreateShortURL(w http.ResponseWriter, r *http.Request) 
 		log.Println("error Handler Create Short URL")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
-
 	}
 	//long := string(body)
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusCreated)
+	log.Println("added Content-Type, StatusCode Handler Create Short URL")
 	//short := shorter.shorter(h.baseURL)
 	short := h.repo.AddURL(string(body))
 	long, err := h.repo.GetURL(short)
