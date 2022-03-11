@@ -40,6 +40,7 @@ func (h *Handler) HandlerGetURLByID(c *gin.Context) {
 }
 
 func (h *Handler) HandlerCreateShortURL(c *gin.Context) {
+
 	result := map[string]string{}
 	defer c.Request.Body.Close()
 
@@ -56,6 +57,12 @@ func (h *Handler) HandlerCreateShortURL(c *gin.Context) {
 
 func (h *Handler) HandlerShortenURL(c *gin.Context) {
 	log.Println("start Shorten")
+	headerContentType := c.GetHeader("Content-Type")
+	if headerContentType != "application/json" {
+		c.IndentedJSON(http.StatusUnsupportedMediaType, headerContentType)
+		return
+	}
+
 	result := map[string]string{}
 	var url PostURL
 
