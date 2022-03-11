@@ -22,7 +22,7 @@ type Config struct {
 }
 
 func GetConfig() *Config {
-
+	log.Println("Start Get Config")
 	conf := Config{
 		ServerAddress: ServerAddress,
 		FilePath:      FileName,

@@ -25,6 +25,7 @@ type row struct {
 }
 
 func (repo *MemoryMap) writeRow(longURL string, shortURL string, filePath string) error {
+	log.Println("Start write Row")
 	file, err := os.OpenFile(repo.filePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, conf.FilePerm)
 
 	if err != nil {
@@ -52,7 +53,7 @@ func (repo *MemoryMap) writeRow(longURL string, shortURL string, filePath string
 }
 
 func (repo *MemoryMap) readRow(reader *bufio.Scanner) (bool, error) {
-
+	log.Println("Start read Row")
 	if !reader.Scan() {
 		return false, reader.Err()
 	}
@@ -71,6 +72,7 @@ func (repo *MemoryMap) readRow(reader *bufio.Scanner) (bool, error) {
 }
 
 func NewMemoryMap(filePath string) *MemoryMap {
+	log.Println("Start Create Memory Map")
 	values := make(map[string]string)
 	repo := MemoryMap{
 		values:   values,
@@ -99,6 +101,7 @@ func NewMemoryMap(filePath string) *MemoryMap {
 }
 
 func (repo *MemoryMap) AddURL(longURL string) string {
+	log.Println("Start Add URL")
 	shortURL := shorter.Shorter(longURL)
 	repo.values[shortURL] = longURL
 	repo.writeRow(longURL, shortURL, repo.filePath)
@@ -106,6 +109,7 @@ func (repo *MemoryMap) AddURL(longURL string) string {
 }
 
 func (repo *MemoryMap) GetURL(shortURL string) (string, error) {
+	log.Println("Start Get URL")
 	resultURL, okey := repo.values[shortURL]
 	if !okey {
 		return "", errors.New("not found")
@@ -114,5 +118,6 @@ func (repo *MemoryMap) GetURL(shortURL string) (string, error) {
 }
 
 func NewMemoryFile(filePath string) MemoryInterface {
+	log.Println("New Memory Map")
 	return MemoryInterface(NewMemoryMap(filePath))
 }

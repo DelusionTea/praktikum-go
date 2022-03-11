@@ -35,7 +35,7 @@ func NewHandler(config *conf.Config) *Handler {
 
 }
 func (h *Handler) CallHandlers(router chi.Router) {
-
+	log.Println("Start Call Handlers")
 	router.Post(createURL, h.HandlerCreateShortURL)
 	router.Route(getURL, func(r chi.Router) {
 		r.Get("/", h.HandlerGetURLByID)
@@ -51,7 +51,10 @@ func (h *Handler) CallHandlers(router chi.Router) {
 }
 
 func (h *Handler) HandlerCreateShortURL(w http.ResponseWriter, r *http.Request) {
+	log.Println("Start Handler Create Short URL")
+	log.Println(w)
 	body, err := io.ReadAll(r.Body)
+	log.Println(body)
 	defer r.Body.Close()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -69,6 +72,7 @@ func (h *Handler) HandlerCreateShortURL(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *Handler) HandlerGetURLByID(w http.ResponseWriter, r *http.Request) {
+	log.Println("Start Handler Get URL By ID")
 	param := chi.URLParam(r, "ID")
 	log.Println(param)
 	param = h.baseURL + param
@@ -90,6 +94,7 @@ func (h *Handler) HandlerGetURLByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) HandlerShortenURL(w http.ResponseWriter, r *http.Request) {
+	log.Println("Start Handler Shorten URL")
 	if err := json.NewDecoder(r.Body).Decode(&h.baseURL); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

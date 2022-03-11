@@ -3,10 +3,12 @@ package shorter
 import (
 	"crypto/sha1"
 	"encoding/base64"
+	"log"
 	"strings"
 )
 
 func Shorter(longURL string) string {
+	log.Println("Start Shorter")
 	splitURL := strings.Split(longURL, "://")
 	hashURL := sha1.New()
 	if len(splitURL) < 2 {
