@@ -52,11 +52,12 @@ func (h *Handler) CallHandlers(router chi.Router) {
 
 func (h *Handler) HandlerCreateShortURL(w http.ResponseWriter, r *http.Request) {
 	log.Println("Start Handler Create Short URL")
-	log.Println(w)
 	body, err := io.ReadAll(r.Body)
+	log.Println("body Handler Create Short URL")
 	log.Println(body)
 	defer r.Body.Close()
 	if err != nil {
+		log.Println("error Handler Create Short URL")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 
@@ -67,6 +68,11 @@ func (h *Handler) HandlerCreateShortURL(w http.ResponseWriter, r *http.Request) 
 	//short := shorter.shorter(h.baseURL)
 	short := h.repo.AddURL(string(body))
 	long, err := h.repo.GetURL(short)
+	if err != nil {
+		log.Println("error Handler Create Short URL")
+		http.Error(w, "Error", http.StatusBadRequest)
+		return
+	}
 	w.Header().Set("Location", long)
 	//w.Write([]byte(short))
 }
@@ -78,11 +84,13 @@ func (h *Handler) HandlerGetURLByID(w http.ResponseWriter, r *http.Request) {
 	param = h.baseURL + param
 	long, err := h.repo.GetURL(param)
 	if err != nil {
+		log.Println("error Handler Get URL By ID")
 		http.Error(w, "Error", http.StatusBadRequest)
 		return
 	}
 	log.Println(long)
 	if long == "" {
+		log.Println("error Handler Get URL By ID")
 		http.Error(w, "id error", http.StatusBadRequest)
 		return
 	}
@@ -96,6 +104,7 @@ func (h *Handler) HandlerGetURLByID(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) HandlerShortenURL(w http.ResponseWriter, r *http.Request) {
 	log.Println("Start Handler Shorten URL")
 	if err := json.NewDecoder(r.Body).Decode(&h.baseURL); err != nil {
+		log.Println("error HandlerShortenURL")
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -108,6 +117,7 @@ func (h *Handler) HandlerShortenURL(w http.ResponseWriter, r *http.Request) {
 	h.result.ResultURL = shortURL
 	result, err := json.Marshal(h.result)
 	if err != nil {
+		log.Println("error HandlerShortenURL")
 		http.Error(w, err.Error(), 500)
 		return
 	}

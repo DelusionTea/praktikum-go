@@ -29,6 +29,7 @@ func (repo *MemoryMap) writeRow(longURL string, shortURL string, filePath string
 	file, err := os.OpenFile(repo.filePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, conf.FilePerm)
 
 	if err != nil {
+		log.Println("error write row")
 		return err
 	}
 	writer := bufio.NewWriter(file)
@@ -38,14 +39,17 @@ func (repo *MemoryMap) writeRow(longURL string, shortURL string, filePath string
 		ShortURL: shortURL,
 	})
 	if err != nil {
+		log.Println("error write row")
 		return err
 	}
 
 	if _, err := writer.Write(data); err != nil {
+		log.Println("error write row")
 		return err
 	}
 
 	if err := writer.WriteByte('\n'); err != nil {
+		log.Println("error write row")
 		return err
 	}
 
@@ -56,6 +60,7 @@ func (repo *MemoryMap) readRow(reader *bufio.Scanner) (bool, error) {
 	log.Println("Start read Row")
 	if !reader.Scan() {
 		return false, reader.Err()
+		log.Println("error read row")
 	}
 	data := reader.Bytes()
 
@@ -64,6 +69,7 @@ func (repo *MemoryMap) readRow(reader *bufio.Scanner) (bool, error) {
 	err := json.Unmarshal(data, row)
 
 	if err != nil {
+		log.Println("error read row")
 		return false, err
 	}
 	repo.values[row.ShortURL] = row.LongURL
