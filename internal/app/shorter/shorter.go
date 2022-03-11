@@ -19,7 +19,3 @@ func Shorter(longURL string) string {
 	urlHash := base64.URLEncoding.EncodeToString(hashURL.Sum(nil))
 	return string(urlHash)
 }
-
-//func ShorterGet(id int) string {
-//	return fmt.Sprintf("%s%d", conf.ServerAddress, id)
-//}

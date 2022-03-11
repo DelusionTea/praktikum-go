@@ -37,7 +37,7 @@ func GetConfig() *Config {
 	flagAddress := flag.String("a", ServerAddress, "Server address")
 	flagBaseURL := flag.String("b", BaseURL, "base url")
 	flagFilePath := flag.String("f", FileName, "file path")
-	flag.Parse()
+	//flag.Parse()
 
 	if *flagAddress != ServerAddress {
 		conf.ServerAddress = *flagAddress
