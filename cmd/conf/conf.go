@@ -36,15 +36,15 @@ func GetConfig() *Config {
 	FileName := flag.String(instance.FilePath, "f", "file path")
 	flag.Parse()
 
-	if instance.ServerAddress == "" {
-		instance.ServerAddress = *ServerAddress
-	}
-	if instance.BaseURL == "" {
-		instance.BaseURL = *BaseURL
-	}
-	if instance.FilePath == "" {
-		instance.FilePath = *FileName
-	}
+	//if instance.ServerAddress == "" {
+	instance.ServerAddress = *ServerAddress
+	//}
+	//if instance.BaseURL == "" {
+	instance.BaseURL = *BaseURL
+	//}
+	//if instance.FilePath == "" {
+	instance.FilePath = *FileName
+	//}
 
 	return instance
 }

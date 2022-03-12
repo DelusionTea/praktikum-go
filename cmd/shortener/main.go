@@ -5,7 +5,6 @@ import (
 	"github.com/DelusionTea/praktikum-go/cmd/conf"
 	"github.com/DelusionTea/praktikum-go/internal/app/handlers"
 	"github.com/DelusionTea/praktikum-go/internal/memory"
-	"github.com/caarlos0/env"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -29,7 +28,7 @@ func setupRouter(repo memory.MemoryInterface, baseURL string) *gin.Engine {
 
 func main() {
 	cfg := conf.GetConfig()
-	env.Parse(cfg)
+	//env.Parse(cfg)
 
 	if string(cfg.BaseURL[len(cfg.BaseURL)-1]) != "/" {
 		cfg.BaseURL += "/"
