@@ -2,56 +2,56 @@ package conf
 
 import (
 	"flag"
-	"fmt"
 	"github.com/caarlos0/env"
 	"log"
 	"os"
 )
 
 const (
-	ServerAddress = "localhost:8080"
-	BaseURL       = "http://localhost:8080/"
-	FileName      = "sorter.logs"
-	FilePerm      = 0755
+	//ServerAddress = "localhost:8080"
+	//BaseURL       = "http://localhost:8080/"
+	//FileName      = "sorter.logs"
+	FilePerm = 0755
 )
 
 type Config struct {
-	ServerAddress string `env:"SERVER_ADDRESS"`
-	BaseURL       string `env:"BASE_URL"`
-	FilePath      string `env:"FILE_STORAGE_PATH"`
+	ServerAddress string `env:"SERVER_ADDRESS" envDefault:"localhost:8080"`
+	BaseURL       string `env:"BASE_URL" envDefault:"http://localhost:8080/"`
+	FilePath      string `env:"FILE_STORAGE_PATH" envDefault:"sorter.logs"`
 }
+
+var instance *Config
 
 func GetConfig() *Config {
 	log.Println("Start Get Config")
-	conf := Config{
-		ServerAddress: ServerAddress,
-		FilePath:      FileName,
-		BaseURL:       BaseURL,
-	}
-	conf.BaseURL = fmt.Sprintf("http://%s/", conf.ServerAddress)
-	if err := env.Parse(&conf); err != nil {
+	instance = &Config{}
+	if err := env.Parse(instance); err != nil {
 		log.Fatal(err)
 	}
+	//conf.BaseURL = fmt.Sprintf("http://%s/", conf.ServerAddress)
+	//if err := env.Parse(&conf); err != nil {
+	//	log.Fatal(err)
+	//}
 
-	flag.StringVar(&conf.ServerAddress, "a", ServerAddress, "Server address")
-	flag.StringVar(&conf.BaseURL, "b", BaseURL, "base url")
+	ServerAddress := flag.String(instance.ServerAddress, "a", "Server address")
+	BaseURL := flag.String(instance.BaseURL, "b", "base url")
 
-	flag.StringVar(&conf.FilePath, "f", FileName, "file path")
+	FileName := flag.String(instance.FilePath, "f", "file path")
 	flag.Parse()
 
 	if os.Getenv("SERVER_ADDRESS") == "" {
-		conf.ServerAddress = ServerAddress
+		instance.ServerAddress = *ServerAddress
 	}
 	if os.Getenv("BASE_URL") == "" {
-		conf.BaseURL = BaseURL
+		instance.BaseURL = *BaseURL
 	}
 	if os.Getenv("FILE_STORAGE_PATH") == "" {
-		conf.FilePath = FileName
+		instance.FilePath = *FileName
 	}
 
 	log.Flags()
-	log.Println(conf.BaseURL)
-	log.Println(conf.ServerAddress)
-	log.Println(conf.FilePath)
-	return &conf
+	log.Println(instance.BaseURL)
+	log.Println(instance.ServerAddress)
+	log.Println(instance.FilePath)
+	return instance
 }
