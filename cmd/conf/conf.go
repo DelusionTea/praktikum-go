@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/caarlos0/env"
 	"log"
+	"os"
 )
 
 const (
@@ -38,13 +39,13 @@ func GetConfig() *Config {
 	flag.StringVar(&conf.FilePath, "f", FileName, "file path")
 	//flag.Parse()
 
-	if conf.ServerAddress == "" {
+	if os.Getenv("SERVER_ADDRESS") == "" {
 		conf.ServerAddress = ServerAddress
 	}
-	if conf.BaseURL == "" {
+	if os.Getenv("BASE_URL") == "" {
 		conf.BaseURL = BaseURL
 	}
-	if conf.FilePath == "" {
+	if os.Getenv("FILE_STORAGE_PATH") == "" {
 		conf.FilePath = FileName
 	}
 
