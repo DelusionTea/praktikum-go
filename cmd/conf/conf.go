@@ -49,5 +49,9 @@ func GetConfig() *Config {
 		conf.FilePath = FileName
 	}
 
+	log.Flags()
+	log.Println(conf.BaseURL)
+	log.Println(conf.ServerAddress)
+	log.Println(conf.FilePath)
 	return &conf
 }

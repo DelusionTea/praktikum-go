@@ -31,6 +31,11 @@ func main() {
 	cfg := conf.GetConfig()
 	env.Parse(cfg)
 
+	log.Flags()
+	log.Println(cfg.BaseURL)
+	log.Println(cfg.ServerAddress)
+	log.Println(cfg.FilePath)
+
 	if string(cfg.BaseURL[len(cfg.BaseURL)-1]) != "/" {
 		cfg.BaseURL += "/"
 	}
