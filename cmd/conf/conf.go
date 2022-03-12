@@ -8,59 +8,43 @@ import (
 )
 
 const (
-	ServerAddress = ":8080"
-	BaseURL       = "http://localhost:8080/"
-	FileName      = "sorter.logs"
-	FilePerm      = 0755
+	//ServerAddress = "localhost:8080"
+	//BaseURL       = "http://localhost:8080/"
+	//FileName      = "sorter.logs"
+	FilePerm = 0755
 )
 
 type Config struct {
-	ServerAddress string `env:"SERVER_ADDRESS"`
-	BaseURL       string `env:"BASE_URL"`
-	FilePath      string `env:"FILE_STORAGE_PATH"`
+	ServerAddress string `env:"SERVER_ADDRESS" envDefault:"localhost:8080"`
+	BaseURL       string `env:"BASE_URL" envDefault:"http://localhost:8080/"`
+	FilePath      string `env:"FILE_STORAGE_PATH" envDefault:"sorter.logs"`
 }
+
+var instance *Config
 
 func GetConfig() *Config {
 	log.Println("Start Get Config")
-	conf := Config{
-		ServerAddress: ServerAddress,
-		FilePath:      FileName,
-		BaseURL:       BaseURL,
-	}
-	conf.BaseURL = fmt.Sprintf("http://%s/", conf.ServerAddress)
-	if err := env.Parse(&conf); err != nil {
+	instance = &Config{}
+	instance.BaseURL = fmt.Sprintf("http://%s/", instance.ServerAddress)
+	if err := env.Parse(&instance); err != nil {
 		log.Fatal(err)
 	}
 
-	flag.StringVar(&conf.ServerAddress, "a", ServerAddress, "Server address")
-	flag.StringVar(&conf.BaseURL, "b", BaseURL, "base url")
+	ServerAddress := flag.String(instance.ServerAddress, "a", "Server address")
+	BaseURL := flag.String(instance.BaseURL, "b", "base url")
 
-	flag.StringVar(&conf.FilePath, "f", FileName, "file path")
+	FileName := flag.String(instance.FilePath, "f", "file path")
 	//flag.Parse()
 
-	if conf.ServerAddress == "" {
-		conf.ServerAddress = ServerAddress
-	}
-	if conf.BaseURL == "" {
-		conf.BaseURL = BaseURL
-	}
-	if conf.FilePath == "" {
-		conf.FilePath = FileName
-	}
-
-	//if conf.FilePath != FileName {
-	//	if _, err := os.Stat(filepath.Dir(conf.FilePath)); os.IsNotExist(err) {
-	//		log.Println("Creating folder")
-	//		err := os.Mkdir(filepath.Dir(conf.FilePath), FilePerm)
-	//		if err != nil {
-	//			log.Printf("Error: %v \n", err)
-	//		}
-	//	}
+	//if instance.ServerAddress == "" {
+	instance.ServerAddress = *ServerAddress
+	////}
+	////if instance.BaseURL == "" {
+	instance.BaseURL = *BaseURL
+	////}
+	////if instance.FilePath == "" {
+	instance.FilePath = *FileName
 	//}
 
-	if string(conf.BaseURL[len(conf.BaseURL)-1]) != "/" {
-		conf.BaseURL += "/"
-	}
-
-	return &conf
+	return instance
 }
