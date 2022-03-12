@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	ServerAddress = ":8080"
+	ServerAddress = "localhost:8080"
 	BaseURL       = "http://localhost:8080/"
 	FileName      = "sorter.logs"
 	FilePerm      = 0755
