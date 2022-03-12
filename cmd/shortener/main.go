@@ -30,6 +30,11 @@ func setupRouter(repo memory.MemoryInterface, baseURL string) *gin.Engine {
 func main() {
 	cfg := conf.GetConfig()
 	env.Parse(cfg)
+
+	if string(cfg.BaseURL[len(cfg.BaseURL)-1]) != "/" {
+		cfg.BaseURL += "/"
+	}
+
 	handler := setupRouter(memory.NewMemoryFile(cfg.FilePath), cfg.BaseURL)
 
 	server := &http.Server{
