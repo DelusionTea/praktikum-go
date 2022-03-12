@@ -5,6 +5,13 @@ import (
 	"os"
 )
 
+const (
+	ServerAddress = ":8080"
+	BaseURL       = "http://localhost:8080/"
+	FileName      = "sorter.logs"
+	//FilePerm      = 0755
+)
+
 type Config struct {
 	BaseURL       string
 	ServerAddress string
@@ -14,15 +21,15 @@ type Config struct {
 func GetConfig() *Config {
 	cfg := &Config{}
 	if cfg.BaseURL = os.Getenv("SERVER_ADDRESS"); cfg.BaseURL == "" {
-		flag.StringVar(&cfg.BaseURL, "a", ":8080", "Server address")
+		flag.StringVar(&cfg.BaseURL, "a", ServerAddress, "Server address")
 	}
 
 	if cfg.ServerAddress = os.Getenv("BASE_URL"); cfg.ServerAddress == "" {
-		flag.StringVar(&cfg.ServerAddress, "b", "http://localhost:8080/", "Server base URL")
+		flag.StringVar(&cfg.ServerAddress, "b", BaseURL, "Server base URL")
 	}
 
 	if cfg.FilePath = os.Getenv("FILE_STORAGE_PATH"); cfg.FilePath == "" {
-		flag.StringVar(&cfg.FilePath, "f", "", "File storage path")
+		flag.StringVar(&cfg.FilePath, "f", FileName, "File storage path")
 	}
 
 	flag.Parse()
