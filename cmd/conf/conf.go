@@ -48,9 +48,9 @@ func GetConfig() *Config {
 		conf.FilePath = FileName
 	}
 
-	if string(conf.BaseURL[len(conf.BaseURL)-1]) != "/" {
-		conf.BaseURL += "/"
-	}
+	//if string(conf.BaseURL[len(conf.BaseURL)-1]) != "/" {
+	//	conf.BaseURL += "/"
+	//}
 
 	return &conf
 }
