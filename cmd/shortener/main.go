@@ -32,7 +32,7 @@ func main() {
 	handler := setupRouter(memory.NewMemoryFile(cfg.FilePath), cfg.BaseURL)
 
 	server := &http.Server{
-		Addr:    conf.ServerAddress,
+		Addr:    cfg.ServerAddress,
 		Handler: handler,
 	}
 

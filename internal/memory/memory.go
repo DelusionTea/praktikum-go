@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"errors"
-	"github.com/DelusionTea/praktikum-go/cmd/conf"
 	"github.com/DelusionTea/praktikum-go/internal/app/shorter"
 	"log"
 	"os"
@@ -26,7 +25,7 @@ type row struct {
 
 func (repo *MemoryMap) writeRow(longURL string, shortURL string, filePath string) error {
 	log.Println("Start write Row")
-	file, err := os.OpenFile(repo.filePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, conf.FilePerm)
+	file, err := os.OpenFile(repo.filePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0755)
 
 	if err != nil {
 		log.Println("error write row")
@@ -91,7 +90,7 @@ func NewMemoryMap(filePath string) *MemoryMap {
 		values:   values,
 		filePath: filePath,
 	}
-	file, err := os.OpenFile(filePath, os.O_RDONLY|os.O_CREATE, conf.FilePerm)
+	file, err := os.OpenFile(filePath, os.O_RDONLY|os.O_CREATE, 0755)
 	if err != nil {
 		log.Printf("Error with reading file: %v\n", err)
 	}

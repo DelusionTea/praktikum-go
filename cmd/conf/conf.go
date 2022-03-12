@@ -2,65 +2,36 @@ package conf
 
 import (
 	"flag"
-	"fmt"
-	"github.com/caarlos0/env"
-	"log"
 )
 
 const (
 	ServerAddress = ":8080"
 	BaseURL       = "http://localhost:8080/"
 	FileName      = "sorter.logs"
-	FilePerm      = 0755
+	//FilePerm      = 0755
 )
 
 type Config struct {
-	ServerAddress string `env:"SERVER_ADDRESS"`
 	BaseURL       string `env:"BASE_URL"`
+	ServerAddress string `env:"SERVER_ADDRESS"`
 	FilePath      string `env:"FILE_STORAGE_PATH"`
 }
 
 func GetConfig() *Config {
-	log.Println("Start Get Config")
-	conf := Config{
-		ServerAddress: ServerAddress,
-		FilePath:      FileName,
-		BaseURL:       BaseURL,
-	}
-	conf.BaseURL = fmt.Sprintf("http://%s/", conf.ServerAddress)
-	if err := env.Parse(&conf); err != nil {
-		log.Fatal(err)
+	cfg := &Config{}
+	if cfg.BaseURL == "" {
+		flag.StringVar(&cfg.BaseURL, "a", ServerAddress, "Server address")
 	}
 
-	flag.StringVar(&conf.ServerAddress, "a", ServerAddress, "Server address")
-	flag.StringVar(&conf.BaseURL, "b", BaseURL, "base url")
-
-	flag.StringVar(&conf.FilePath, "f", FileName, "file path")
-	//flag.Parse()
-
-	if conf.ServerAddress == "" {
-		conf.ServerAddress = ServerAddress
-	}
-	if conf.BaseURL == "" {
-		conf.BaseURL = BaseURL
-	}
-	if conf.FilePath == "" {
-		conf.FilePath = FileName
+	if cfg.ServerAddress == "" {
+		flag.StringVar(&cfg.ServerAddress, "b", BaseURL, "Server base URL")
 	}
 
-	//if conf.FilePath != FileName {
-	//	if _, err := os.Stat(filepath.Dir(conf.FilePath)); os.IsNotExist(err) {
-	//		log.Println("Creating folder")
-	//		err := os.Mkdir(filepath.Dir(conf.FilePath), FilePerm)
-	//		if err != nil {
-	//			log.Printf("Error: %v \n", err)
-	//		}
-	//	}
-	//}
-
-	if string(conf.BaseURL[len(conf.BaseURL)-1]) != "/" {
-		conf.BaseURL += "/"
+	if cfg.FilePath == "" {
+		flag.StringVar(&cfg.FilePath, "f", FileName, "File storage path")
 	}
 
-	return &conf
+	flag.Parse()
+
+	return cfg
 }
