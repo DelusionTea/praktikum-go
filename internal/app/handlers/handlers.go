@@ -82,7 +82,7 @@ func (h *Handler) HandlerShortenURL(c *gin.Context) {
 		return
 	}
 
-	short := h.repo.AddURL(url.URL)
+	short := "/" + h.repo.AddURL(url.URL)
 	result["result"] = h.baseURL + short
 	c.IndentedJSON(http.StatusCreated, result)
 
