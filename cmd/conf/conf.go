@@ -37,7 +37,7 @@ func GetConfig() *Config {
 	flag.StringVar(&conf.BaseURL, "b", BaseURL, "base url")
 
 	flag.StringVar(&conf.FilePath, "f", FileName, "file path")
-	//flag.Parse()
+	flag.Parse()
 
 	if os.Getenv("SERVER_ADDRESS") == "" {
 		conf.ServerAddress = ServerAddress
