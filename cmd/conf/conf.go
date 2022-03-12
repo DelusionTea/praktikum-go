@@ -48,16 +48,6 @@ func GetConfig() *Config {
 		conf.FilePath = FileName
 	}
 
-	//if conf.FilePath != FileName {
-	//	if _, err := os.Stat(filepath.Dir(conf.FilePath)); os.IsNotExist(err) {
-	//		log.Println("Creating folder")
-	//		err := os.Mkdir(filepath.Dir(conf.FilePath), FilePerm)
-	//		if err != nil {
-	//			log.Printf("Error: %v \n", err)
-	//		}
-	//	}
-	//}
-
 	if string(conf.BaseURL[len(conf.BaseURL)-1]) != "/" {
 		conf.BaseURL += "/"
 	}
