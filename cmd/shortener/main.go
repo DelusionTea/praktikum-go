@@ -28,7 +28,6 @@ func setupRouter(repo memory.MemoryInterface, baseURL string) *gin.Engine {
 
 func main() {
 	cfg := conf.GetConfig()
-	//env.Parse(cfg)
 
 	log.Flags()
 	log.Println(cfg.BaseURL)
