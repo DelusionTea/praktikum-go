@@ -2,65 +2,47 @@ package conf
 
 import (
 	"flag"
-	"fmt"
 	"github.com/caarlos0/env"
 	"log"
+	"os"
 )
 
 const (
-	ServerAddress = ":8080"
-	BaseURL       = "http://localhost:8080/"
-	FileName      = "sorter.logs"
-	FilePerm      = 0755
+	FilePerm = 0755
 )
 
 type Config struct {
-	ServerAddress string `env:"SERVER_ADDRESS"`
-	BaseURL       string `env:"BASE_URL"`
-	FilePath      string `env:"FILE_STORAGE_PATH"`
+	ServerAddress string `env:"SERVER_ADDRESS" envDefault:"localhost:8080"`
+	BaseURL       string `env:"BASE_URL" envDefault:"http://localhost:8080/"`
+	FilePath      string `env:"FILE_STORAGE_PATH" envDefault:"sorter.log"`
 }
+
+var instance *Config
 
 func GetConfig() *Config {
 	log.Println("Start Get Config")
-	conf := Config{
-		ServerAddress: ServerAddress,
-		FilePath:      FileName,
-		BaseURL:       BaseURL,
-	}
-	conf.BaseURL = fmt.Sprintf("http://%s/", conf.ServerAddress)
-	if err := env.Parse(&conf); err != nil {
+	instance = &Config{}
+	if err := env.Parse(instance); err != nil {
 		log.Fatal(err)
 	}
+	ServerAddress := flag.String("a", instance.ServerAddress, "Server address")
+	BaseURL := flag.String("b", instance.BaseURL, "base url")
+	FileName := flag.String("f", instance.FilePath, "file path")
+	flag.Parse()
 
-	flag.StringVar(&conf.ServerAddress, "a", ServerAddress, "Server address")
-	flag.StringVar(&conf.BaseURL, "b", BaseURL, "base url")
-
-	flag.StringVar(&conf.FilePath, "f", FileName, "file path")
-	//flag.Parse()
-
-	if conf.ServerAddress == "" {
-		conf.ServerAddress = ServerAddress
+	if os.Getenv("SERVER_ADDRESS") == "" {
+		instance.ServerAddress = *ServerAddress
 	}
-	if conf.BaseURL == "" {
-		conf.BaseURL = BaseURL
+	if os.Getenv("BASE_URL") == "" {
+		instance.BaseURL = *BaseURL
 	}
-	if conf.FilePath == "" {
-		conf.FilePath = FileName
+	if os.Getenv("FILE_STORAGE_PATH") == "" {
+		instance.FilePath = *FileName
 	}
 
-	//if conf.FilePath != FileName {
-	//	if _, err := os.Stat(filepath.Dir(conf.FilePath)); os.IsNotExist(err) {
-	//		log.Println("Creating folder")
-	//		err := os.Mkdir(filepath.Dir(conf.FilePath), FilePerm)
-	//		if err != nil {
-	//			log.Printf("Error: %v \n", err)
-	//		}
-	//	}
-	//}
-
-	if string(conf.BaseURL[len(conf.BaseURL)-1]) != "/" {
-		conf.BaseURL += "/"
-	}
-
-	return &conf
+	log.Flags()
+	log.Println(instance.BaseURL)
+	log.Println(instance.ServerAddress)
+	log.Println(instance.FilePath)
+	return instance
 }
