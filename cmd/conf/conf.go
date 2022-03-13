@@ -33,10 +33,12 @@ func GetConfig() *Config {
 	//	log.Fatal(err)
 	//}
 
-	ServerAddress := flag.String(instance.ServerAddress, "a", "Server address")
-	BaseURL := flag.String(instance.BaseURL, "b", "base url")
-
-	FileName := flag.String(instance.FilePath, "f", "file path")
+	//ServerAddress := flag.String(instance.ServerAddress, "a", "Server address")
+	//BaseURL := flag.String(instance.BaseURL, "b", "base url")
+	//FileName := flag.String(instance.FilePath, "f", "file path")
+	ServerAddress := flag.String("a", instance.ServerAddress, "Server address")
+	BaseURL := flag.String("b", instance.BaseURL, "base url")
+	FileName := flag.String("f", instance.FilePath, "file path")
 	flag.Parse()
 
 	if os.Getenv("SERVER_ADDRESS") == "" {
