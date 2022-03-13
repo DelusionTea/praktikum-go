@@ -8,16 +8,13 @@ import (
 )
 
 const (
-	//ServerAddress = "localhost:8080"
-	//BaseURL       = "http://localhost:8080/"
-	//FileName      = "sorter.logs"
 	FilePerm = 0755
 )
 
 type Config struct {
 	ServerAddress string `env:"SERVER_ADDRESS" envDefault:"localhost:8080"`
 	BaseURL       string `env:"BASE_URL" envDefault:"http://localhost:8080/"`
-	FilePath      string `env:"FILE_STORAGE_PATH" envDefault:"sorter.logs"`
+	FilePath      string `env:"FILE_STORAGE_PATH" envDefault:"sorter.log"`
 }
 
 var instance *Config
@@ -28,14 +25,6 @@ func GetConfig() *Config {
 	if err := env.Parse(instance); err != nil {
 		log.Fatal(err)
 	}
-	//conf.BaseURL = fmt.Sprintf("http://%s/", conf.ServerAddress)
-	//if err := env.Parse(&conf); err != nil {
-	//	log.Fatal(err)
-	//}
-
-	//ServerAddress := flag.String(instance.ServerAddress, "a", "Server address")
-	//BaseURL := flag.String(instance.BaseURL, "b", "base url")
-	//FileName := flag.String(instance.FilePath, "f", "file path")
 	ServerAddress := flag.String("a", instance.ServerAddress, "Server address")
 	BaseURL := flag.String("b", instance.BaseURL, "base url")
 	FileName := flag.String("f", instance.FilePath, "file path")

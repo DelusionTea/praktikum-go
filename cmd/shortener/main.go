@@ -29,11 +29,6 @@ func setupRouter(repo memory.MemoryInterface, baseURL string) *gin.Engine {
 func main() {
 	cfg := conf.GetConfig()
 
-	log.Flags()
-	log.Println(cfg.BaseURL)
-	log.Println(cfg.ServerAddress)
-	log.Println(cfg.FilePath)
-
 	if string(cfg.BaseURL[len(cfg.BaseURL)-1]) != "/" {
 		cfg.BaseURL += "/"
 	}

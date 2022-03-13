@@ -1,129 +1,198 @@
 package handlers
 
-//
-//import (
-//	"encoding/json"
-//	"github.com/go-chi/chi"
-//	"net/http"
-//	"net/http/httptest"
-//	"testing"
-//)
-//
-//func TestHandler_HandlerGetURLByID(t *testing.T) {
-//	store := make(map[string]string)
-//
-//	store["1"] = "http://test.com"
-//
-//	r := chi.NewRouter()
-//	r.Get("/{articleID}", func(w http.ResponseWriter, r *http.Request) {
-//		key := chi.URLParam(r, "articleID")
-//		url := store[key]
-//		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-//		w.WriteHeader(307)
-//		w.Write([]byte(url))
-//	})
-//
-//	ts := httptest.NewServer(r)
-//	defer ts.Close()
-//
-//	if res, _ := TestRequest(t, ts, "GET", "/1", nil); res.StatusCode != 307 {
-//		t.Fatalf("want %d, got %d", 307, res.StatusCode)
-//	}
-//
-//	if res, _ := TestRequest(t, ts, "GET", "/something/666", nil); res.StatusCode != 404 {
-//		t.Fatalf("want %d, got %d", 404, res.StatusCode)
-//	}
-//
-//	if res, _ := TestRequest(t, ts, "GET", "/1", nil); res.Header.Get("Content-Type") != "text/plain; charset=utf-8" {
-//		t.Fatalf("want %s, got %s", "text/plain; charset=utf-8", res.Header.Get("Content-Type"))
-//	}
-//
-//	if _, body := TestRequest(t, ts, "GET", "/1", nil); string(body) != "http://test.com" {
-//		t.Fatalf("want %s, got %s", "http://google.com", string(body))
-//	}
-//}
-//
-//func TestHandler_HandlerCreateShortURL(t *testing.T) {
-//	r := chi.NewRouter()
-//	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
-//		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-//		w.WriteHeader(201)
-//		w.Write([]byte("http://localhost:8080/whTHc"))
-//	})
-//
-//	ts := httptest.NewServer(r)
-//	defer ts.Close()
-//
-//	if _, body := TestRequest(t, ts, "POST", "/", nil); string(body) != "http://localhost:8080/whTHc" {
-//		t.Fatalf("want %s, got %s", "http://localhost:8080/whTHc", string(body))
-//	}
-//
-//	if res, _ := TestRequest(t, ts, "POST", "/", nil); res.Header.Get("Content-Type") != "text/plain; charset=utf-8" {
-//		t.Fatalf("want %s, got %s", "text/plain; charset=utf-8", res.Header.Get("Content-Type"))
-//	}
-//
-//	if res, _ := TestRequest(t, ts, "POST", "/", nil); res.StatusCode != 201 {
-//		t.Fatalf("want %d, got %d", 201, res.StatusCode)
-//	}
-//
-//	if res, _ := TestRequest(t, ts, "POST", "/somewrong", nil); res.StatusCode != 404 {
-//		t.Fatalf("want %d, got %d", 404, res.StatusCode)
-//	}
-//}
-//
-//type shorttest struct {
-//	Key string `json:"result"`
-//}
-//
-//type bodytest struct {
-//	Result string `json:"result"`
-//}
-//
-//func TestHandler_HandlerShortenURL(t *testing.T) {
-//	short := shorttest{
-//		Key: "http://localhost:8080/1",
-//	}
-//
-//	r := chi.NewRouter()
-//	r.Post("/api/shorten", func(w http.ResponseWriter, r *http.Request) {
-//		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-//		w.WriteHeader(201)
-//		result, err := json.Marshal(&short)
-//		if err != nil {
-//			t.Error(err.Error())
-//			return
-//		}
-//
-//		w.Write([]byte(result))
-//	})
-//
-//	ts := httptest.NewServer(r)
-//	defer ts.Close()
-//
-//	if res, _ := TestRequest(t, ts, "POST", "/api/shorten", nil); res.StatusCode != 201 {
-//		t.Fatalf("want %d, got %d\n", 201, res.StatusCode)
-//	}
-//
-//	if res, _ := TestRequest(t, ts, "POST", "/api/shorten", nil); res.Header.Get("Content-Type") != "application/json; charset=utf-8" {
-//		t.Fatalf("want %s, got %s", "application/json; charset=utf-8", res.Header.Get("Content-Type"))
-//	}
-//
-//	if res, _ := TestRequest(t, ts, "POST", "/api/shorten/3", nil); res.StatusCode != 404 {
-//		t.Fatalf("want %d, got %d", 404, res.StatusCode)
-//	}
-//
-//	bodytest := bodytest{}
-//
-//	_, body := TestRequest(t, ts, "POST", "/api/shorten", nil)
-//
-//	err := json.Unmarshal(body, &bodytest)
-//	if err != nil {
-//		t.Error(err.Error())
-//		return
-//	}
-//
-//	bodyRes := bodytest.Result
-//	if string(bodyRes) != "http://localhost:8080/1" {
-//		t.Fatalf("want %s, got %s", "http://localhost:8080/1", bodyRes)
-//	}
-//}
+import (
+	"encoding/json"
+	"github.com/DelusionTea/praktikum-go/cmd/conf"
+	"github.com/DelusionTea/praktikum-go/internal/memory"
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"regexp"
+	"strings"
+	"testing"
+)
+
+func setupRouter(repo memory.MemoryInterface, baseURL string) *gin.Engine {
+	router := gin.Default()
+
+	handler := New(repo, baseURL)
+
+	router.GET("/:id", handler.HandlerGetURLByID)
+	router.POST("/", handler.HandlerCreateShortURL)
+	router.POST("/api/shorten", handler.HandlerShortenURL)
+
+	router.HandleMethodNotAllowed = true
+
+	return router
+}
+
+func SendTestRequest(t *testing.T, ts *httptest.Server, method, path, contentType string, body io.Reader) (*http.Response, string) {
+	client := &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		}}
+
+	req, err := http.NewRequest(method, ts.URL+path, body)
+	require.NoError(t, err)
+	if contentType != "" {
+		req.Header.Add("Content-Type", contentType)
+	}
+	resp, err := client.Do(req)
+	require.NoError(t, err)
+
+	respBody, err := ioutil.ReadAll(resp.Body)
+	require.NoError(t, err)
+
+	defer resp.Body.Close()
+	return resp, string(respBody)
+}
+
+type ShortenerResponse struct {
+	Result string `json:"result"`
+}
+
+type want struct {
+	responseStatusCode  int
+	responseParams      map[string]string
+	responseContentType string
+	responseBody        string
+}
+type request struct {
+	url, method, contentType, body string
+}
+
+const testAddr = "http://localhost:8080/"
+
+func TestHandler_HandlerGetURLByID(t *testing.T) {
+	type fields struct {
+		repo    memory.MemoryInterface
+		baseURL string
+	}
+	type args struct {
+		c *gin.Context
+	}
+	tests := []struct {
+		name    string
+		request request
+		want    want
+	}{
+		{
+			name: "negative test #1. GET with empty url",
+			request: request{
+				url:    "/",
+				method: http.MethodGet,
+				body:   "",
+			},
+			want: want{
+				responseStatusCode: http.StatusMethodNotAllowed,
+				responseParams:     nil,
+				responseBody:       "405 method not allowed",
+			},
+		},
+	}
+	//cfg := conf.GetConfig()
+	r := setupRouter(memory.NewMemoryFile("sorter.log"), testAddr)
+	ts := httptest.NewServer(r)
+	defer ts.Close()
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			resp, body := SendTestRequest(t, ts, tt.request.method, tt.request.url, "", nil)
+			defer resp.Body.Close()
+			assert.Equal(t, tt.want.responseStatusCode, resp.StatusCode)
+			assert.Equal(t, tt.want.responseBody, strings.TrimRight(body, "\n"))
+		})
+	}
+}
+
+func TestHandler_HandlerCreateShortURL(t *testing.T) {
+
+	tests := []struct {
+		name    string
+		request request
+		want    want
+	}{
+		{
+			name: "positive test #1. POST",
+			request: request{
+				url:    "/",
+				method: http.MethodPost,
+				body:   "body:http://test.ru",
+			},
+			want: want{
+				responseStatusCode: http.StatusCreated,
+				responseParams:     nil,
+				responseBody:       "http://([a-zA-Z1-9]{5})",
+			},
+		},
+	}
+
+	cfg := conf.GetConfig()
+	r := setupRouter(memory.NewMemoryFile(cfg.FilePath), cfg.BaseURL)
+	ts := httptest.NewServer(r)
+	defer ts.Close()
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			resp, body := SendTestRequest(t, ts, tt.request.method, tt.request.url, "", strings.NewReader(tt.request.body))
+			defer resp.Body.Close()
+
+			assert.Equal(t, tt.want.responseStatusCode, resp.StatusCode)
+
+			//assert.True(t, resp.StatusCode == tt.want.responseStatusCode)
+
+			matched, _ := regexp.MatchString(tt.want.responseBody, strings.TrimRight(body, "\n"))
+			assert.True(t, matched)
+			//assert.Equal(t, tt.want.responseBody, matched)
+		})
+	}
+}
+
+func TestHandler_HandlerShortenURL(t *testing.T) {
+
+	tests := []struct {
+		name    string
+		request request
+		want    want
+	}{
+		{
+			name: "positive test #1. POST /api/shorten",
+			request: request{
+				url:         "/api/shorten",
+				contentType: "application/json",
+				method:      http.MethodPost,
+				body:        `{"url": "http://test.ru"}`,
+			},
+			want: want{
+				responseStatusCode:  201,
+				responseParams:      nil,
+				responseContentType: "application/json",
+				responseBody:        "http://([a-zA-Z1-9]{5})",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := setupRouter(memory.NewMemoryFile("sorter.log"), testAddr)
+			ts := httptest.NewServer(r)
+			defer ts.Close()
+			resp, body := SendTestRequest(t, ts, tt.request.method, tt.request.url, tt.request.contentType, strings.NewReader(tt.request.body))
+			var originalLink ShortenerResponse
+			if err := json.Unmarshal([]byte(body), &originalLink); err != nil {
+				assert.True(t, false)
+			}
+			defer resp.Body.Close()
+
+			//assert.Equal(t, resp.Header.Get("Content-Type"), tt.want.responseContentType)
+			assert.Equal(t, tt.want.responseStatusCode, resp.StatusCode)
+
+			matched, _ := regexp.MatchString(tt.want.responseBody, originalLink.Result)
+			assert.True(t, matched)
+		})
+	}
+}
