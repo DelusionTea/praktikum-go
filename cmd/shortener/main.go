@@ -12,7 +12,7 @@ import (
 	"os/signal"
 )
 
-func setupRouter(repo memory.MemoryInterface, baseURL string) *gin.Engine {
+func setupRouter(repo memory.MemoryMap, baseURL string) *gin.Engine {
 	router := gin.Default()
 
 	handler := handlers.New(repo, baseURL)

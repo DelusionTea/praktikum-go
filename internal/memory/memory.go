@@ -3,20 +3,14 @@ package memory
 import (
 	"bufio"
 	"encoding/json"
-	"errors"
 	"github.com/DelusionTea/praktikum-go/cmd/conf"
-	"github.com/DelusionTea/praktikum-go/internal/app/shorter"
 	"log"
 	"os"
 )
 
-type MemoryInterface interface {
-	AddURL(longURL string) string
-	GetURL(shortURL string) (string, error)
-}
 type MemoryMap struct {
-	values   map[string]string
-	filePath string
+	Values   map[string]string
+	FilePath string
 }
 
 type row struct {
@@ -24,9 +18,9 @@ type row struct {
 	LongURL  string `json:"long_url"`
 }
 
-func (repo *MemoryMap) writeRow(longURL string, shortURL string, filePath string) error {
+func (repo *MemoryMap) WriteRow(longURL string, shortURL string, filePath string) error {
 	log.Println("Start write Row")
-	file, err := os.OpenFile(repo.filePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, conf.FilePerm)
+	file, err := os.OpenFile(repo.FilePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, conf.FilePerm)
 
 	if err != nil {
 		log.Println("error write row")
@@ -75,7 +69,7 @@ func (repo *MemoryMap) readRow(reader *bufio.Scanner) (bool, error) {
 		log.Print(err)
 		return false, err
 	}
-	repo.values[row.ShortURL] = row.LongURL
+	repo.Values[row.ShortURL] = row.LongURL
 	log.Println("readRow long URL:  ")
 	log.Print(row.LongURL)
 
@@ -88,8 +82,8 @@ func NewMemoryMap(filePath string) *MemoryMap {
 	log.Println("Start Create Memory Map")
 	values := make(map[string]string)
 	repo := MemoryMap{
-		values:   values,
-		filePath: filePath,
+		Values:   values,
+		FilePath: filePath,
 	}
 	file, err := os.OpenFile(filePath, os.O_RDONLY|os.O_CREATE, conf.FilePerm)
 	if err != nil {
@@ -114,29 +108,8 @@ func NewMemoryMap(filePath string) *MemoryMap {
 	return &repo
 }
 
-func (repo *MemoryMap) AddURL(longURL string) string {
-	log.Println("Start Add URL")
-	shortURL := shorter.Shorter(longURL)
-	repo.values[shortURL] = longURL
-	repo.writeRow(longURL, shortURL, repo.filePath)
-	log.Println("End Add URL :")
-	log.Print(shortURL)
-	return shortURL
-}
-
-func (repo *MemoryMap) GetURL(shortURL string) (string, error) {
-	log.Println("Start Get URL")
-	resultURL, okey := repo.values[shortURL]
-	log.Println("End Get URL :")
-	log.Print(resultURL)
-	if !okey {
-		return "", errors.New("not found")
-	}
-	return resultURL, nil
-}
-
-func NewMemoryFile(filePath string) MemoryInterface {
+func NewMemoryFile(filePath string) MemoryMap {
 	log.Println("New Memory Map: ")
-	log.Print(MemoryInterface(NewMemoryMap(filePath)))
-	return MemoryInterface(NewMemoryMap(filePath))
+	//log.Print(NewMemoryMap(filePath))
+	return *NewMemoryMap(filePath)
 }

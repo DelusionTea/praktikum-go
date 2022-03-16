@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"github.com/DelusionTea/praktikum-go/internal/app/shorter"
 	"github.com/DelusionTea/praktikum-go/internal/memory"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
@@ -14,11 +15,11 @@ type PostURL struct {
 }
 
 type Handler struct {
-	repo    memory.MemoryInterface
+	repo    memory.MemoryMap
 	baseURL string
 }
 
-func New(repo memory.MemoryInterface, baseURL string) *Handler {
+func New(repo memory.MemoryMap, baseURL string) *Handler {
 	return &Handler{
 		repo:    repo,
 		baseURL: baseURL,
@@ -27,7 +28,9 @@ func New(repo memory.MemoryInterface, baseURL string) *Handler {
 
 func (h *Handler) HandlerGetURLByID(c *gin.Context) {
 	result := map[string]string{}
-	long, err := h.repo.GetURL(c.Param("id"))
+	//long, err := h.repo.GetURL(c.Param("id"))
+	long, err := shorter.GetURL(c.Param("id"), h.repo)
+	//short := shorter.AddURL(string(body), h.repo)
 
 	if err != nil {
 		result["detail"] = err.Error()
@@ -51,7 +54,8 @@ func (h *Handler) HandlerCreateShortURL(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, result)
 		return
 	}
-	short := h.repo.AddURL(string(body))
+	short := shorter.AddURL(string(body), h.repo)
+	//short := h.repo.AddURL(string(body))
 	c.String(http.StatusCreated, h.baseURL+short)
 }
 
@@ -79,8 +83,8 @@ func (h *Handler) HandlerShortenURL(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, result)
 		return
 	}
-
-	short := h.repo.AddURL(url.URL)
+	short := shorter.AddURL(url.URL, h.repo)
+	//short := h.repo.AddURL(url.URL)
 	result["result"] = h.baseURL + short
 	c.IndentedJSON(http.StatusCreated, result)
 

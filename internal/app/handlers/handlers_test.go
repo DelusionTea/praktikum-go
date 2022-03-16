@@ -16,7 +16,7 @@ import (
 	"testing"
 )
 
-func setupRouter(repo memory.MemoryInterface, baseURL string) *gin.Engine {
+func setupRouter(repo memory.MemoryMap, baseURL string) *gin.Engine {
 	router := gin.Default()
 
 	handler := New(repo, baseURL)
@@ -69,7 +69,7 @@ const testAddr = "http://localhost:8080/"
 
 func TestHandler_HandlerGetURLByID(t *testing.T) {
 	type fields struct {
-		repo    memory.MemoryInterface
+		repo    memory.MemoryMap
 		baseURL string
 	}
 	type args struct {
@@ -95,7 +95,7 @@ func TestHandler_HandlerGetURLByID(t *testing.T) {
 		},
 	}
 	//cfg := conf.GetConfig()
-	r := setupRouter(memory.NewMemoryFile("sorter.log"), testAddr)
+	r := setupRouter(memory.NewMemoryFile("sorter.txt"), testAddr)
 	ts := httptest.NewServer(r)
 	defer ts.Close()
 
