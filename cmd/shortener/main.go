@@ -1,18 +1,58 @@
 package main
 
 import (
-	"github.com/julienschmidt/httprouter"
+	"context"
+	"github.com/DelusionTea/praktikum-go/cmd/conf"
 	"github.com/DelusionTea/praktikum-go/internal/app/handlers"
+	"github.com/DelusionTea/praktikum-go/internal/memory"
+	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 )
 
+func setupRouter(repo memory.MemoryInterface, baseURL string) *gin.Engine {
+	router := gin.Default()
+
+	handler := handlers.New(repo, baseURL)
+
+	router.GET("/:id", handler.HandlerGetURLByID)
+	router.POST("/", handler.HandlerCreateShortURL)
+	router.POST("/api/shorten", handler.HandlerShortenURL)
+
+	router.HandleMethodNotAllowed = true
+
+	return router
+}
+
 func main() {
-	//http.HandleFunc("/", myrequest)
-	router := httprouter.New()
-	router.POST("/", handlers.HandlerCreateShortURL)
-	router.GET("/:id", handlers.HandlerGetURLByID)
-	//Сервер должен быть доступен по адресу: http://localhost:8080.
-	//http.ListenAndServe(":8080", nil)
-	log.Fatal(http.ListenAndServe("localhost:8080", router))
+	cfg := conf.GetConfig()
+
+	if string(cfg.BaseURL[len(cfg.BaseURL)-1]) != "/" {
+		cfg.BaseURL += "/"
+	}
+
+	handler := setupRouter(memory.NewMemoryFile(cfg.FilePath), cfg.BaseURL)
+
+	server := &http.Server{
+		Addr:    cfg.ServerAddress,
+		Handler: handler,
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	go func() {
+		log.Fatal(server.ListenAndServe())
+		cancel()
+	}()
+
+	sigint := make(chan os.Signal, 1)
+	signal.Notify(sigint, os.Interrupt)
+	select {
+	case <-sigint:
+		cancel()
+	case <-ctx.Done():
+	}
+	server.Shutdown(context.Background())
 }
