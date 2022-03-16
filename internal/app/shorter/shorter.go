@@ -40,8 +40,8 @@ func AddURL(longURL string, repo memory.MemoryMap) string {
 func GetURL(shortURL string, repo memory.MemoryMap) (string, error) {
 	log.Println("Start Get URL")
 	resultURL, okey := repo.Values[shortURL]
-	log.Println("End Get URL :") +
-		log.Print(resultURL)
+	log.Println("End Get URL :")
+	log.Print(resultURL)
 	if !okey {
 		return "", errors.New("not found")
 	}
