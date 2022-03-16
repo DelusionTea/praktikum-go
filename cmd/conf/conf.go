@@ -17,11 +17,9 @@ type Config struct {
 	FilePath      string `env:"FILE_STORAGE_PATH" envDefault:"sorter.log"`
 }
 
-var instance *Config
-
 func GetConfig() *Config {
 	log.Println("Start Get Config")
-	instance = &Config{}
+	instance := &Config{}
 	if err := env.Parse(instance); err != nil {
 		log.Fatal(err)
 	}
@@ -46,7 +44,7 @@ func GetConfig() *Config {
 	log.Println(instance.FilePath)
 
 	if len(instance.BaseURL) > 0 {
-		if string(instance.BaseURL[len(instance.BaseURL)-1]) != "/" {
+		if instance.BaseURL[len(instance.BaseURL)-1] != '/' {
 			instance.BaseURL += "/"
 		}
 	}
