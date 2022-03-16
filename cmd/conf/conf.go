@@ -44,5 +44,11 @@ func GetConfig() *Config {
 	log.Println(instance.BaseURL)
 	log.Println(instance.ServerAddress)
 	log.Println(instance.FilePath)
+
+	if len(instance.BaseURL) > 0 {
+		if string(instance.BaseURL[len(instance.BaseURL)-1]) != "/" {
+			instance.BaseURL += "/"
+		}
+	}
 	return instance
 }
