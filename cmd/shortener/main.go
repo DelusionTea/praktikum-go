@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/DelusionTea/praktikum-go/cmd/conf"
 	"github.com/DelusionTea/praktikum-go/internal/app/handlers"
+	"github.com/DelusionTea/praktikum-go/internal/app/middleware"
 	"github.com/DelusionTea/praktikum-go/internal/memory"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -14,7 +15,10 @@ import (
 
 func setupRouter(repo memory.MemoryMap, baseURL string) *gin.Engine {
 	router := gin.Default()
-
+	//router.
+	router.Use(middleware.GzipEncodeMiddleware())
+	router.Use(middleware.GzipDecodeMiddleware())
+	//router.Use(gzip.Gzip(gzip.DefaultCompression))
 	handler := handlers.New(repo, baseURL)
 
 	router.GET("/:id", handler.HandlerGetURLByID)
