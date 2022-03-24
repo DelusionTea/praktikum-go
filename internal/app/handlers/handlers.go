@@ -44,6 +44,24 @@ func (h *Handler) HandlerGetURLByID(c *gin.Context) {
 
 func (h *Handler) HandlerCreateShortURL(c *gin.Context) {
 
+	//if r.Header.Get(`Content-Encoding`) == `gzip` {
+	//	gz, err := gzip.NewReader(r.Body)
+	//	if err != nil {
+	//		http.Error(w, err.Error(), http.StatusInternalServerError)
+	//		return
+	//	}
+	//	reader = gz
+	//	defer gz.Close()
+	//} else {
+	//	reader = r.Body
+
+	//}
+	//
+	//if c.Request.Header.Get(`Content-Encoding`) == "gzip" {
+	//	//gzip.DefaultCompression(c.Request.Body)
+	//	c.Use(gzip.Gzip(gzip.DefaultCompression))
+	//	gzip.Gzip(gzip.DefaultCompression)
+	//}
 	result := map[string]string{}
 	defer c.Request.Body.Close()
 
