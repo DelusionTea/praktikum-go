@@ -11,6 +11,8 @@ import (
 type MemoryMap struct {
 	Values   map[string]string
 	FilePath string
+	BaseURL  string
+	UsersURL map[string][]string
 }
 
 type row struct {
@@ -78,12 +80,14 @@ func (repo *MemoryMap) readRow(reader *bufio.Scanner) (bool, error) {
 	return true, nil
 }
 
-func NewMemoryMap(filePath string) *MemoryMap {
+func NewMemoryMap(filePath string, baseURL string) *MemoryMap {
 	log.Println("Start Create Memory Map")
 	values := make(map[string]string)
 	repo := MemoryMap{
 		Values:   values,
 		FilePath: filePath,
+		BaseURL:  baseURL,
+		UsersURL: map[string][]string{},
 	}
 	file, err := os.OpenFile(filePath, os.O_RDONLY|os.O_CREATE, conf.FilePerm)
 	if err != nil {
@@ -108,8 +112,8 @@ func NewMemoryMap(filePath string) *MemoryMap {
 	return &repo
 }
 
-func NewMemoryFile(filePath string) MemoryMap {
+func NewMemoryFile(filePath string, baseURL string) MemoryMap {
 	log.Println("New Memory Map: ")
 	//log.Print(NewMemoryMap(filePath))
-	return *NewMemoryMap(filePath)
+	return *NewMemoryMap(filePath, baseURL)
 }

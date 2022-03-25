@@ -24,6 +24,7 @@ func setupRouter(repo memory.MemoryMap, baseURL string) *gin.Engine {
 	router.GET("/:id", handler.HandlerGetURLByID)
 	router.POST("/", handler.HandlerCreateShortURL)
 	router.POST("/api/shorten", handler.HandlerShortenURL)
+	router.GET("/api/user/urls", handler.HandlerHistoryOfURLs)
 
 	router.HandleMethodNotAllowed = true
 
@@ -33,7 +34,7 @@ func setupRouter(repo memory.MemoryMap, baseURL string) *gin.Engine {
 func main() {
 	cfg := conf.GetConfig()
 
-	handler := setupRouter(memory.NewMemoryFile(cfg.FilePath), cfg.BaseURL)
+	handler := setupRouter(memory.NewMemoryFile(cfg.FilePath, cfg.BaseURL), cfg.BaseURL)
 
 	server := &http.Server{
 		Addr:    cfg.ServerAddress,
