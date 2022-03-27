@@ -169,14 +169,20 @@ func (h *Handler) HandlerShortenURL(c *gin.Context) {
 
 func (h *Handler) HandlerHistoryOfURLs(c *gin.Context) {
 	//result, err := h.repo.GetUserURL(c.Request.Context(), c.GetString("userId"))
+	log.Println("start HandlerHistoryOfURLs")
 	result, err := GetUserURL(c.Request.Context(), c.GetString("userId"), h.repo)
+	log.Println(result)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err)
+		log.Println("StatusInternalServerError")
 		return
 	}
 	if len(result) == 0 {
 		c.IndentedJSON(http.StatusNoContent, result)
+		log.Println("StatusNoContent")
 		return
 	}
+	log.Println("StatusOK")
+	log.Println(result)
 	c.IndentedJSON(http.StatusOK, result)
 }
