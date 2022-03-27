@@ -13,11 +13,12 @@ import (
 	"os/signal"
 )
 
-func setupRouter(repo memory.MemoryMap, baseURL string) *gin.Engine {
+func setupRouter(repo memory.MemoryMap, baseURL string, conf *conf.Config) *gin.Engine {
 	router := gin.Default()
 	//router.
 	router.Use(middleware.GzipEncodeMiddleware())
 	router.Use(middleware.GzipDecodeMiddleware())
+	router.Use(middleware.CookieMiddleware(conf))
 	//router.Use(gzip.Gzip(gzip.DefaultCompression))
 	handler := handlers.New(repo, baseURL)
 
@@ -34,7 +35,7 @@ func setupRouter(repo memory.MemoryMap, baseURL string) *gin.Engine {
 func main() {
 	cfg := conf.GetConfig()
 
-	handler := setupRouter(memory.NewMemoryFile(cfg.FilePath, cfg.BaseURL), cfg.BaseURL)
+	handler := setupRouter(memory.NewMemoryFile(cfg.FilePath, cfg.BaseURL), cfg.BaseURL, cfg)
 
 	server := &http.Server{
 		Addr:    cfg.ServerAddress,
