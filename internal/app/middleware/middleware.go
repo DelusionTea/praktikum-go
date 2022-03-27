@@ -62,8 +62,10 @@ func CookieMiddleware(cfg *conf.Config) gin.HandlerFunc {
 		log.Println("start Cookie Middle ware")
 		defer c.Next()
 		cookie, _ := c.Request.Cookie("userId")
+		log.Println(cookie)
 		encryptor, err := encryption.New(cfg.Key)
 		if err != nil {
+			log.Println("Error")
 			return
 		}
 		if cookie != nil {
