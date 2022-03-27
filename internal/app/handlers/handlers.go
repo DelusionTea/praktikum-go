@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"github.com/DelusionTea/praktikum-go/internal/DataBase"
 	"github.com/DelusionTea/praktikum-go/internal/app/shorter"
 	"github.com/DelusionTea/praktikum-go/internal/memory"
 	"github.com/gin-gonic/gin"
@@ -88,4 +89,16 @@ func (h *Handler) HandlerShortenURL(c *gin.Context) {
 	result["result"] = h.baseURL + short
 	c.IndentedJSON(http.StatusCreated, result)
 
+}
+
+func (h *Handler) HandlerPingDB(c *gin.Context) {
+	//При успешной проверке хендлер должен вернуть HTTP-статус 200 OK, при неуспешной — 500 Internal Server Error.
+	//err := DataBase.Ping(c.Request.Context()
+	ctx := c.Request.Context()
+	err := DataBase.PGDataBase.Ping(ctx)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "")
+		return
+	}
+	c.String(http.StatusOK, "")
 }

@@ -20,6 +20,7 @@ func setupRouter(repo memory.MemoryMap, baseURL string) *gin.Engine {
 	router.GET("/:id", handler.HandlerGetURLByID)
 	router.POST("/", handler.HandlerCreateShortURL)
 	router.POST("/api/shorten", handler.HandlerShortenURL)
+	router.GET("/ping", handler.HandlerPingDB)
 
 	router.HandleMethodNotAllowed = true
 
