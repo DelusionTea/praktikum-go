@@ -35,15 +35,27 @@ type ResponseGetURL struct {
 	OriginalURL string `json:"original_url"`
 }
 
-func AddURL(longURL string, repo memory.MemoryMap) string {
+func AddURL(longURL string, repo memory.MemoryMap, user string) string {
 	log.Println("Start Add URL")
 	shortURL := shorter.Shorter(longURL)
 	repo.Values[shortURL] = longURL
-	repo.WriteRow(longURL, shortURL, repo.FilePath)
+	repo.UsersURL[user] = append(repo.UsersURL[user], shortURL)
+	repo.WriteRow(longURL, shortURL, repo.FilePath, user)
 	log.Println("End Add URL :")
 	log.Print(shortURL)
 	return shortURL
 }
+
+//func AddURLbyID(longURL string, repo memory.MemoryMap, user string) string {
+//	log.Println("Start Add URL")
+//	shortURL := shorter.Shorter(longURL)
+//	repo.Values[shortURL] = longURL
+//	repo.UsersURL[user] = append(repo.UsersURL[user], shortURL)
+//	repo.WriteRow(longURL, shortURL, repo.FilePath, user)
+//	log.Println("End Add URL :")
+//	log.Print(shortURL)
+//	return shortURL
+//}
 
 func GetURL(shortURL string, repo memory.MemoryMap) (string, error) {
 	log.Println("Start Get URL")
@@ -103,24 +115,6 @@ func (h *Handler) HandlerGetURLByID(c *gin.Context) {
 
 func (h *Handler) HandlerCreateShortURL(c *gin.Context) {
 
-	//if r.Header.Get(`Content-Encoding`) == `gzip` {
-	//	gz, err := gzip.NewReader(r.Body)
-	//	if err != nil {
-	//		http.Error(w, err.Error(), http.StatusInternalServerError)
-	//		return
-	//	}
-	//	reader = gz
-	//	defer gz.Close()
-	//} else {
-	//	reader = r.Body
-
-	//}
-	//
-	//if c.Request.Header.Get(`Content-Encoding`) == "gzip" {
-	//	//gzip.DefaultCompression(c.Request.Body)
-	//	c.Use(gzip.Gzip(gzip.DefaultCompression))
-	//	gzip.Gzip(gzip.DefaultCompression)
-	//}
 	result := map[string]string{}
 	defer c.Request.Body.Close()
 
@@ -131,7 +125,7 @@ func (h *Handler) HandlerCreateShortURL(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, result)
 		return
 	}
-	short := AddURL(string(body), h.repo)
+	short := AddURL(string(body), h.repo, c.GetString("userId"))
 	//short := h.repo.AddURL(string(body))
 	c.String(http.StatusCreated, h.baseURL+short)
 }
@@ -160,7 +154,7 @@ func (h *Handler) HandlerShortenURL(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, result)
 		return
 	}
-	short := AddURL(url.URL, h.repo)
+	short := AddURL(url.URL, h.repo, c.GetString("userId"))
 	//short := h.repo.AddURL(url.URL)
 	result["result"] = h.baseURL + short
 	c.IndentedJSON(http.StatusCreated, result)
@@ -170,7 +164,8 @@ func (h *Handler) HandlerShortenURL(c *gin.Context) {
 func (h *Handler) HandlerHistoryOfURLs(c *gin.Context) {
 	//result, err := h.repo.GetUserURL(c.Request.Context(), c.GetString("userId"))
 	log.Println("start HandlerHistoryOfURLs")
-	log.Println(c.GetString("id"))
+	log.Println(c.GetString("userId"))
+	//log.Println(c.GetString(c.Request.Cookie("userId")))
 	result, err := GetUserURL(c.Request.Context(), c.GetString("userId"), h.repo)
 	log.Println(result)
 	if err != nil {

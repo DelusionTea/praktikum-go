@@ -18,9 +18,10 @@ type MemoryMap struct {
 type row struct {
 	ShortURL string `json:"short_url"`
 	LongURL  string `json:"long_url"`
+	User     string `json:"user"`
 }
 
-func (repo *MemoryMap) WriteRow(longURL string, shortURL string, filePath string) error {
+func (repo *MemoryMap) WriteRow(longURL string, shortURL string, filePath string, user string) error {
 	log.Println("Start write Row")
 	file, err := os.OpenFile(repo.FilePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, conf.FilePerm)
 
@@ -33,6 +34,7 @@ func (repo *MemoryMap) WriteRow(longURL string, shortURL string, filePath string
 	data, err := json.Marshal(&row{
 		LongURL:  longURL,
 		ShortURL: shortURL,
+		User:     user,
 	})
 	if err != nil {
 		log.Println("error write row")
