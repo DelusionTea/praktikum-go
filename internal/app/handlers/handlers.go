@@ -170,7 +170,7 @@ func (h *Handler) HandlerShortenURL(c *gin.Context) {
 func (h *Handler) HandlerHistoryOfURLs(c *gin.Context) {
 	//result, err := h.repo.GetUserURL(c.Request.Context(), c.GetString("userId"))
 	log.Println("start HandlerHistoryOfURLs")
-	log.Println(c.GetString("userId"))
+	log.Println(c.GetString("id"))
 	result, err := GetUserURL(c.Request.Context(), c.GetString("userId"), h.repo)
 	log.Println(result)
 	if err != nil {
