@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/DelusionTea/praktikum-go/cmd/conf"
 	"github.com/DelusionTea/praktikum-go/internal/app/handlers"
+	"github.com/DelusionTea/praktikum-go/internal/app/middleware"
 	"github.com/DelusionTea/praktikum-go/internal/memory"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -12,15 +13,20 @@ import (
 	"os/signal"
 )
 
-func setupRouter(repo memory.MemoryMap, baseURL string) *gin.Engine {
+func setupRouter(repo memory.MemoryMap, baseURL string, conf *conf.Config) *gin.Engine {
 	router := gin.Default()
-
+	//router.
+	router.Use(middleware.GzipEncodeMiddleware())
+	router.Use(middleware.GzipDecodeMiddleware())
+	router.Use(middleware.CookieMiddleware(conf))
+	//router.Use(gzip.Gzip(gzip.DefaultCompression))
 	handler := handlers.New(repo, baseURL)
 
 	router.GET("/:id", handler.HandlerGetURLByID)
 	router.POST("/", handler.HandlerCreateShortURL)
 	router.POST("/api/shorten", handler.HandlerShortenURL)
 	router.GET("/ping", handler.HandlerPingDB)
+	router.GET("/api/user/urls", handler.HandlerHistoryOfURLs)
 
 	router.HandleMethodNotAllowed = true
 
@@ -30,7 +36,7 @@ func setupRouter(repo memory.MemoryMap, baseURL string) *gin.Engine {
 func main() {
 	cfg := conf.GetConfig()
 
-	handler := setupRouter(memory.NewMemoryFile(cfg.FilePath), cfg.BaseURL)
+	handler := setupRouter(memory.NewMemoryFile(cfg.FilePath, cfg.BaseURL), cfg.BaseURL, cfg)
 
 	server := &http.Server{
 		Addr:    cfg.ServerAddress,

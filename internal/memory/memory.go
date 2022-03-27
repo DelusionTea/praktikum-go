@@ -11,14 +11,17 @@ import (
 type MemoryMap struct {
 	Values   map[string]string
 	FilePath string
+	BaseURL  string
+	UsersURL map[string][]string
 }
 
 type row struct {
 	ShortURL string `json:"short_url"`
 	LongURL  string `json:"long_url"`
+	User     string `json:"user"`
 }
 
-func (repo *MemoryMap) WriteRow(longURL string, shortURL string, filePath string) error {
+func (repo *MemoryMap) WriteRow(longURL string, shortURL string, filePath string, user string) error {
 	log.Println("Start write Row")
 	file, err := os.OpenFile(repo.FilePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, conf.FilePerm)
 
@@ -31,6 +34,7 @@ func (repo *MemoryMap) WriteRow(longURL string, shortURL string, filePath string
 	data, err := json.Marshal(&row{
 		LongURL:  longURL,
 		ShortURL: shortURL,
+		User:     user,
 	})
 	if err != nil {
 		log.Println("error write row")
@@ -78,12 +82,14 @@ func (repo *MemoryMap) readRow(reader *bufio.Scanner) (bool, error) {
 	return true, nil
 }
 
-func NewMemoryMap(filePath string) *MemoryMap {
+func NewMemoryMap(filePath string, baseURL string) *MemoryMap {
 	log.Println("Start Create Memory Map")
 	values := make(map[string]string)
 	repo := MemoryMap{
 		Values:   values,
 		FilePath: filePath,
+		BaseURL:  baseURL,
+		UsersURL: map[string][]string{},
 	}
 	file, err := os.OpenFile(filePath, os.O_RDONLY|os.O_CREATE, conf.FilePerm)
 	if err != nil {
@@ -108,8 +114,8 @@ func NewMemoryMap(filePath string) *MemoryMap {
 	return &repo
 }
 
-func NewMemoryFile(filePath string) MemoryMap {
+func NewMemoryFile(filePath string, baseURL string) MemoryMap {
 	log.Println("New Memory Map: ")
 	//log.Print(NewMemoryMap(filePath))
-	return *NewMemoryMap(filePath)
+	return *NewMemoryMap(filePath, baseURL)
 }
