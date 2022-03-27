@@ -2,7 +2,11 @@ package middleware
 
 import (
 	"compress/gzip"
+	"github.com/DelusionTea/praktikum-go/cmd/conf"
+	"github.com/DelusionTea/praktikum-go/internal/encryption"
 	"github.com/gin-gonic/gin"
+	"github.com/gofrs/uuid"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -50,5 +54,36 @@ func GzipDecodeMiddleware() gin.HandlerFunc {
 
 		c.Next()
 
+	}
+}
+
+func CookieMiddleware(cfg *conf.Config) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		log.Println("start Cookie Middle ware")
+		defer c.Next()
+		cookie, _ := c.Request.Cookie("userId")
+		log.Println(cookie)
+		encryptor, err := encryption.New(cfg.Key)
+		if err != nil {
+			log.Println("Error")
+			return
+		}
+		if cookie != nil {
+			value, err := encryptor.DecodeUUIDfromString(cookie.Value)
+			if err == nil {
+				log.Println(value)
+				c.Set("userId", value)
+				return
+			}
+		}
+		id, err := uuid.NewV4()
+		if err != nil {
+			return
+		}
+		value := encryptor.EncodeUUIDtoString(id.Bytes())
+		c.SetCookie("userId", value, 864000, "/", cfg.BaseURL, false, false)
+		log.Println("userId")
+		log.Println(id.String())
+		c.Set("userId", id.String())
 	}
 }
