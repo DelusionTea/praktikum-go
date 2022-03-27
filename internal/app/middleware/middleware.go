@@ -6,6 +6,7 @@ import (
 	"github.com/DelusionTea/praktikum-go/internal/encryption"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -58,6 +59,7 @@ func GzipDecodeMiddleware() gin.HandlerFunc {
 
 func CookieMiddleware(cfg *conf.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		log.Println("start Cookie Middle ware")
 		defer c.Next()
 		cookie, _ := c.Request.Cookie("userId")
 		encryptor, err := encryption.New(cfg.Key)
@@ -67,6 +69,7 @@ func CookieMiddleware(cfg *conf.Config) gin.HandlerFunc {
 		if cookie != nil {
 			value, err := encryptor.DecodeUUIDfromString(cookie.Value)
 			if err == nil {
+				log.Println(value)
 				c.Set("userId", value)
 				return
 			}
@@ -77,6 +80,8 @@ func CookieMiddleware(cfg *conf.Config) gin.HandlerFunc {
 		}
 		value := encryptor.EncodeUUIDtoString(id.Bytes())
 		c.SetCookie("userId", value, 864000, "/", cfg.BaseURL, false, false)
+		log.Println("userId")
+		log.Println(id.String())
 		c.Set("userId", id.String())
 	}
 }
