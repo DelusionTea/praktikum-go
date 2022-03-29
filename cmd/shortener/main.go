@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"github.com/DelusionTea/praktikum-go/cmd/conf"
+	"github.com/DelusionTea/praktikum-go/internal/DataBase"
 	"github.com/DelusionTea/praktikum-go/internal/app/handlers"
 	"github.com/DelusionTea/praktikum-go/internal/app/middleware"
 	"github.com/DelusionTea/praktikum-go/internal/memory"
@@ -13,14 +15,15 @@ import (
 	"os/signal"
 )
 
-func setupRouter(repo memory.MemoryMap, baseURL string, conf *conf.Config) *gin.Engine {
+func setupRouter(repo handlers.ShorterInterface, conf *conf.Config) *gin.Engine {
+	/*func setupRouter(repo memory.MemoryMap, baseURL string, conf *conf.Config) *gin.Engine {*/
 	router := gin.Default()
 	//router.
 	router.Use(middleware.GzipEncodeMiddleware())
 	router.Use(middleware.GzipDecodeMiddleware())
 	router.Use(middleware.CookieMiddleware(conf))
 	//router.Use(gzip.Gzip(gzip.DefaultCompression))
-	handler := handlers.New(repo, baseURL)
+	handler := handlers.New(repo, conf.BaseURL)
 
 	router.GET("/:id", handler.HandlerGetURLByID)
 	router.POST("/", handler.HandlerCreateShortURL)
@@ -34,16 +37,28 @@ func setupRouter(repo memory.MemoryMap, baseURL string, conf *conf.Config) *gin.
 }
 
 func main() {
+	ctx, cancel := context.WithCancel(context.Background())
 	cfg := conf.GetConfig()
+	var handler *gin.Engine
+	//db, err := sql.Open("postgres", cfg.DataBase)
 
-	handler := setupRouter(memory.NewMemoryFile(cfg.FilePath, cfg.BaseURL), cfg.BaseURL, cfg)
-
+	if cfg.DataBase != "" {
+		//handler = setupRouter(DataBase.NewDatabase(cfg.BaseURL, cfg.DataBase))
+		db, err := sql.Open("postgres", cfg.DataBase)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer db.Close()
+		DataBase.SetUpDataBase(db, ctx)
+		handler = setupRouter(DataBase.NewDatabaseRepository(cfg.BaseURL, db), cfg)
+		//handler = setupRouter(memory.NewMemoryFile(cfg.FilePath, cfg.BaseURL), cfg.BaseURL, cfg)
+	} else {
+		handler = setupRouter(memory.NewMemoryFile(ctx, cfg.FilePath, cfg.BaseURL), cfg)
+	}
 	server := &http.Server{
 		Addr:    cfg.ServerAddress,
 		Handler: handler,
 	}
-
-	ctx, cancel := context.WithCancel(context.Background())
 
 	go func() {
 		log.Fatal(server.ListenAndServe())

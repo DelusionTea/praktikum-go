@@ -2,8 +2,11 @@ package memory
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
+	"errors"
 	"github.com/DelusionTea/praktikum-go/cmd/conf"
+	"github.com/DelusionTea/praktikum-go/internal/app/handlers"
 	"log"
 	"os"
 )
@@ -82,16 +85,14 @@ func (repo *MemoryMap) readRow(reader *bufio.Scanner) (bool, error) {
 	return true, nil
 }
 
-func NewMemoryMap(filePath string, baseURL string) *MemoryMap {
-	log.Println("Start Create Memory Map")
-	values := make(map[string]string)
+func NewMemoryMap(ctx context.Context, filePath string, baseURL string) *MemoryMap {
 	repo := MemoryMap{
-		Values:   values,
+		Values:   map[string]string{},
 		FilePath: filePath,
 		BaseURL:  baseURL,
 		UsersURL: map[string][]string{},
 	}
-	file, err := os.OpenFile(filePath, os.O_RDONLY|os.O_CREATE, conf.FilePerm)
+	file, err := os.OpenFile(repo.FilePath, os.O_RDONLY|os.O_CREATE, conf.FilePerm)
 	if err != nil {
 		log.Printf("Error with reading file: %v\n", err)
 	}
@@ -109,13 +110,45 @@ func NewMemoryMap(filePath string, baseURL string) *MemoryMap {
 			break
 		}
 	}
-	log.Println("result of ReadRow: ")
-	log.Print(&repo)
+
 	return &repo
 }
 
-func NewMemoryFile(filePath string, baseURL string) MemoryMap {
-	log.Println("New Memory Map: ")
-	//log.Print(NewMemoryMap(filePath))
-	return *NewMemoryMap(filePath, baseURL)
+func NewMemoryFile(ctx context.Context, filePath string, baseURL string) handlers.ShorterInterface {
+	return handlers.ShorterInterface(NewMemoryMap(ctx, filePath, baseURL))
+}
+func (repo *MemoryMap) AddManyURL(ctx context.Context, urls []handlers.ManyPostURL, user string) ([]handlers.ManyPostResponse, error) {
+	return nil, nil
+}
+
+func (repo *MemoryMap) AddURL(ctx context.Context, longURL string, shortURL string, user string) error {
+	repo.Values[shortURL] = longURL
+	repo.WriteRow(longURL, shortURL, repo.FilePath, user)
+	repo.UsersURL[user] = append(repo.UsersURL[user], shortURL)
+	return nil
+}
+
+func (repo *MemoryMap) GetURL(ctx context.Context, shortURL string) (string, error) {
+	resultURL, okey := repo.Values[shortURL]
+	if !okey {
+		return "", errors.New("not found")
+	}
+	return resultURL, nil
+}
+
+func (repo *MemoryMap) GetUserURL(ctx context.Context, user string) ([]handlers.ResponseGetURL, error) {
+	result := []handlers.ResponseGetURL{}
+	for _, url := range repo.UsersURL[user] {
+		temp := handlers.ResponseGetURL{
+			ShortURL:    repo.BaseURL + url,
+			OriginalURL: repo.Values[url],
+		}
+		result = append(result, temp)
+	}
+
+	return result, nil
+}
+
+func (repo *MemoryMap) Ping(ctx context.Context) error {
+	return nil
 }
