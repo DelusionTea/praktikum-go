@@ -3,6 +3,7 @@ package DataBase
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/DelusionTea/praktikum-go/internal/app/handlers"
 	"github.com/DelusionTea/praktikum-go/internal/app/shorter"
@@ -76,7 +77,7 @@ func (db *PGDataBase) AddURL(ctx context.Context, longURL string, shortURL strin
 
 	if err, ok := err.(*pq.Error); ok {
 		if err.Code == pgerrcode.UniqueViolation {
-			//return handlers.NewErrorWithDB(err, "UniqConstraint")
+			return handlers.NewErrorWithDB(err, "UniqConstraint")
 		}
 	}
 
@@ -90,11 +91,9 @@ func (db *PGDataBase) GetURL(ctx context.Context, shortURL string) (string, erro
 	result := GetURLdata{}
 	query.Scan(&result.OriginURL, &result.IsDeleted)
 	if result.OriginURL == "" {
-		//return "", err.Error()
+		return "", errors.New("not found")
 	}
-	if result.IsDeleted {
-		//return "", c.IndentedJSON(http.StatusNotFound, result))
-	}
+
 	return result.OriginURL, nil
 }
 
