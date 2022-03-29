@@ -30,6 +30,8 @@ func setupRouter(repo handlers.ShorterInterface, conf *conf.Config) *gin.Engine 
 	router.POST("/api/shorten", handler.HandlerShortenURL)
 	router.GET("/ping", handler.HandlerPingDB)
 	router.GET("/api/user/urls", handler.HandlerHistoryOfURLs)
+	//POST /api/shorten/batch
+	router.POST("/api/shorten/batch", handler.HandlerBatch)
 
 	router.HandleMethodNotAllowed = true
 

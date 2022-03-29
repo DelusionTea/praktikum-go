@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/DelusionTea/praktikum-go/internal/app/shorter"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
@@ -95,6 +96,28 @@ type ShorterInterface interface {
 	Ping(ctx context.Context) error
 }
 
+func (h *Handler) HandlerBatch(c *gin.Context) {
+	var data []ManyPostURL
+	defer c.Request.Body.Close()
+
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		c.IndentedJSON(http.StatusNotFound, c.GetString(""))
+		return
+	}
+	json.Unmarshal(body, &data)
+	fmt.Println(data)
+	response, err := h.repo.AddManyURL(c.Request.Context(), data, c.GetString("userId"))
+	if err != nil {
+		c.IndentedJSON(http.StatusNotFound, c.GetString("userId"))
+		return
+	}
+	if response == nil {
+		c.IndentedJSON(http.StatusBadRequest, "Error")
+		return
+	}
+	c.IndentedJSON(http.StatusCreated, response)
+}
 func (h *Handler) HandlerGetURLByID(c *gin.Context) {
 	result := map[string]string{}
 	//long, err := h.repo.GetURL(c.Param("id"))
