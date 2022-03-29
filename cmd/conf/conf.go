@@ -15,6 +15,7 @@ type Config struct {
 	ServerAddress string `env:"SERVER_ADDRESS" envDefault:"localhost:8080"`
 	BaseURL       string `env:"BASE_URL" envDefault:"http://localhost:8080/"`
 	FilePath      string `env:"FILE_STORAGE_PATH" envDefault:"sorter.log"`
+	DataBase      string `env:"DATABASE_DSN" envDefault: `
 	Key           []byte
 }
 
@@ -28,6 +29,7 @@ func GetConfig() *Config {
 	BaseURL := flag.String("b", instance.BaseURL, "base url")
 	FileName := flag.String("f", instance.FilePath, "file path")
 
+	DataBase := flag.String("d", instance.DataBase, "DataBase")
 	flag.Parse()
 
 	if os.Getenv("SERVER_ADDRESS") == "" {
@@ -39,6 +41,10 @@ func GetConfig() *Config {
 	if os.Getenv("FILE_STORAGE_PATH") == "" {
 		instance.FilePath = *FileName
 	}
+	if os.Getenv("DATABASE_DSN") == "" {
+		instance.DataBase = *DataBase
+	}
+
 	instance.Key = make([]byte, 16)
 	log.Flags()
 	log.Println(instance.BaseURL)
