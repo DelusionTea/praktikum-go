@@ -2,31 +2,31 @@ package memory
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"errors"
 	"github.com/DelusionTea/praktikum-go/cmd/conf"
-	"github.com/DelusionTea/praktikum-go/internal/app/shorter"
+	"github.com/DelusionTea/praktikum-go/internal/app/handlers"
 	"log"
 	"os"
 )
 
-type MemoryInterface interface {
-	AddURL(longURL string) string
-	GetURL(shortURL string) (string, error)
-}
 type MemoryMap struct {
-	values   map[string]string
-	filePath string
+	Values   map[string]string
+	FilePath string
+	BaseURL  string
+	UsersURL map[string][]string
 }
 
 type row struct {
 	ShortURL string `json:"short_url"`
 	LongURL  string `json:"long_url"`
+	User     string `json:"user"`
 }
 
-func (repo *MemoryMap) writeRow(longURL string, shortURL string, filePath string) error {
+func (repo *MemoryMap) WriteRow(longURL string, shortURL string, filePath string, user string) error {
 	log.Println("Start write Row")
-	file, err := os.OpenFile(repo.filePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, conf.FilePerm)
+	file, err := os.OpenFile(repo.FilePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, conf.FilePerm)
 
 	if err != nil {
 		log.Println("error write row")
@@ -37,6 +37,7 @@ func (repo *MemoryMap) writeRow(longURL string, shortURL string, filePath string
 	data, err := json.Marshal(&row{
 		LongURL:  longURL,
 		ShortURL: shortURL,
+		User:     user,
 	})
 	if err != nil {
 		log.Println("error write row")
@@ -75,7 +76,7 @@ func (repo *MemoryMap) readRow(reader *bufio.Scanner) (bool, error) {
 		log.Print(err)
 		return false, err
 	}
-	repo.values[row.ShortURL] = row.LongURL
+	repo.Values[row.ShortURL] = row.LongURL
 	log.Println("readRow long URL:  ")
 	log.Print(row.LongURL)
 
@@ -84,14 +85,14 @@ func (repo *MemoryMap) readRow(reader *bufio.Scanner) (bool, error) {
 	return true, nil
 }
 
-func NewMemoryMap(filePath string) *MemoryMap {
-	log.Println("Start Create Memory Map")
-	values := make(map[string]string)
+func NewMemoryMap(ctx context.Context, filePath string, baseURL string) *MemoryMap {
 	repo := MemoryMap{
-		values:   values,
-		filePath: filePath,
+		Values:   map[string]string{},
+		FilePath: filePath,
+		BaseURL:  baseURL,
+		UsersURL: map[string][]string{},
 	}
-	file, err := os.OpenFile(filePath, os.O_RDONLY|os.O_CREATE, conf.FilePerm)
+	file, err := os.OpenFile(repo.FilePath, os.O_RDONLY|os.O_CREATE, conf.FilePerm)
 	if err != nil {
 		log.Printf("Error with reading file: %v\n", err)
 	}
@@ -109,34 +110,45 @@ func NewMemoryMap(filePath string) *MemoryMap {
 			break
 		}
 	}
-	log.Println("result of ReadRow: ")
-	log.Print(&repo)
+
 	return &repo
 }
 
-func (repo *MemoryMap) AddURL(longURL string) string {
-	log.Println("Start Add URL")
-	shortURL := shorter.Shorter(longURL)
-	repo.values[shortURL] = longURL
-	repo.writeRow(longURL, shortURL, repo.filePath)
-	log.Println("End Add URL :")
-	log.Print(shortURL)
-	return shortURL
+func NewMemoryFile(ctx context.Context, filePath string, baseURL string) handlers.ShorterInterface {
+	return handlers.ShorterInterface(NewMemoryMap(ctx, filePath, baseURL))
+}
+func (repo *MemoryMap) AddManyURL(ctx context.Context, urls []handlers.ManyPostURL, user string) ([]handlers.ManyPostResponse, error) {
+	return nil, nil
 }
 
-func (repo *MemoryMap) GetURL(shortURL string) (string, error) {
-	log.Println("Start Get URL")
-	resultURL, okey := repo.values[shortURL]
-	log.Println("End Get URL :")
-	log.Print(resultURL)
+func (repo *MemoryMap) AddURL(ctx context.Context, longURL string, shortURL string, user string) error {
+	repo.Values[shortURL] = longURL
+	repo.WriteRow(longURL, shortURL, repo.FilePath, user)
+	repo.UsersURL[user] = append(repo.UsersURL[user], shortURL)
+	return nil
+}
+
+func (repo *MemoryMap) GetURL(ctx context.Context, shortURL string) (string, error) {
+	resultURL, okey := repo.Values[shortURL]
 	if !okey {
 		return "", errors.New("not found")
 	}
 	return resultURL, nil
 }
 
-func NewMemoryFile(filePath string) MemoryInterface {
-	log.Println("New Memory Map: ")
-	log.Print(MemoryInterface(NewMemoryMap(filePath)))
-	return MemoryInterface(NewMemoryMap(filePath))
+func (repo *MemoryMap) GetUserURL(ctx context.Context, user string) ([]handlers.ResponseGetURL, error) {
+	result := []handlers.ResponseGetURL{}
+	for _, url := range repo.UsersURL[user] {
+		temp := handlers.ResponseGetURL{
+			ShortURL:    repo.BaseURL + url,
+			OriginalURL: repo.Values[url],
+		}
+		result = append(result, temp)
+	}
+
+	return result, nil
+}
+
+func (repo *MemoryMap) Ping(ctx context.Context) error {
+	return nil
 }
