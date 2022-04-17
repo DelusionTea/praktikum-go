@@ -15,8 +15,10 @@ type Config struct {
 	ServerAddress string `env:"SERVER_ADDRESS" envDefault:"localhost:8080"`
 	BaseURL       string `env:"BASE_URL" envDefault:"http://localhost:8080/"`
 	FilePath      string `env:"FILE_STORAGE_PATH" envDefault:"sorter.log"`
-	DataBase      string `env:"DATABASE_DSN" envDefault: `
+	DataBase      string `env:"DATABASE_DSN" envDefault:"" `
 	Key           []byte
+	NumbWorkers   int `env:"NUMBER_OF_WORKERS"`
+	WorekerBuff   int `env:"WORKERS_BUFFER"`
 }
 
 func GetConfig() *Config {

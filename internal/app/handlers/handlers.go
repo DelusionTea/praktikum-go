@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/DelusionTea/praktikum-go/internal/app/shorter"
+	"github.com/DelusionTea/praktikum-go/internal/workers"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
@@ -38,6 +39,7 @@ type PostURL struct {
 type Handler struct {
 	repo    ShorterInterface
 	baseURL string
+	wp      workers.Workers
 }
 type ManyPostURL struct {
 	CorrelationID string `json:"correlation_id"`
@@ -54,10 +56,11 @@ type ResponseGetURL struct {
 	OriginalURL string `json:"original_url"`
 }
 
-func New(repo ShorterInterface, baseURL string) *Handler {
+func New(repo ShorterInterface, baseURL string, wp workers.Workers) *Handler {
 	return &Handler{
 		repo:    repo,
 		baseURL: baseURL,
+		wp:      wp,
 	}
 }
 
@@ -67,8 +70,9 @@ type ShorterInterface interface {
 	AddURL(ctx context.Context, longURL string, shortURL string, user string) error
 	GetURL(ctx context.Context, shortURL string) (string, error)
 	GetUserURL(ctx context.Context, user string) ([]ResponseGetURL, error)
-	AddManyURL(ctx context.Context, urls []ManyPostURL, user string) ([]ManyPostResponse, error)
+	AddURLs(ctx context.Context, urls []ManyPostURL, user string) ([]ManyPostResponse, error)
 	Ping(ctx context.Context) error
+	DeleteURLs(ctx context.Context, urls []string, user string) error
 }
 
 func (h *Handler) handleError(c *gin.Context, err error) {
@@ -88,7 +92,7 @@ func (h *Handler) HandlerBatch(c *gin.Context) {
 	}
 	json.Unmarshal(body, &data)
 	fmt.Println(data)
-	response, err := h.repo.AddManyURL(c.Request.Context(), data, c.GetString("userId"))
+	response, err := h.repo.AddURLs(c.Request.Context(), data, c.GetString("userId"))
 	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, c.GetString("userId"))
 		return
@@ -198,4 +202,38 @@ func (h *Handler) HandlerHistoryOfURLs(c *gin.Context) {
 		return
 	}
 	c.IndentedJSON(http.StatusOK, result)
+}
+
+func (h *Handler) DeleteBatch(c *gin.Context) {
+	defer c.Request.Body.Close()
+
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	var data []string
+	err = json.Unmarshal([]byte(body), &data)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+	sliceData := [][]string{}
+	for i := 10; i <= len(data); i += 10 {
+		sliceData = append(sliceData, data[i-10:i])
+	}
+	rem := len(data) % 10
+	if rem > 0 {
+		sliceData = append(sliceData, data[len(data)-rem:])
+	}
+	for _, item := range sliceData {
+		func(taskData []string) {
+			h.wp.Push(func(ctx context.Context) error {
+				err := h.repo.DeleteURLs(ctx, taskData, c.GetString("userId"))
+				return err
+			})
+		}(item)
+	}
+
+	c.Status(http.StatusAccepted)
 }

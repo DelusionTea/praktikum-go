@@ -19,9 +19,10 @@ type MemoryMap struct {
 }
 
 type row struct {
-	ShortURL string `json:"short_url"`
-	LongURL  string `json:"long_url"`
-	User     string `json:"user"`
+	ShortURL   string `json:"short_url"`
+	LongURL    string `json:"long_url"`
+	User       string `json:"user"`
+	DeleteFlag bool   `json:"delete_flag"`
 }
 
 func (repo *MemoryMap) WriteRow(longURL string, shortURL string, filePath string, user string) error {
@@ -117,7 +118,7 @@ func NewMemoryMap(ctx context.Context, filePath string, baseURL string) *MemoryM
 func NewMemoryFile(ctx context.Context, filePath string, baseURL string) handlers.ShorterInterface {
 	return handlers.ShorterInterface(NewMemoryMap(ctx, filePath, baseURL))
 }
-func (repo *MemoryMap) AddManyURL(ctx context.Context, urls []handlers.ManyPostURL, user string) ([]handlers.ManyPostResponse, error) {
+func (repo *MemoryMap) AddURLs(ctx context.Context, urls []handlers.ManyPostURL, user string) ([]handlers.ManyPostResponse, error) {
 	return nil, nil
 }
 
@@ -150,5 +151,9 @@ func (repo *MemoryMap) GetUserURL(ctx context.Context, user string) ([]handlers.
 }
 
 func (repo *MemoryMap) Ping(ctx context.Context) error {
+	return nil
+}
+
+func (repo *MemoryMap) DeleteURLs(ctx context.Context, urls []string, user string) error {
 	return nil
 }

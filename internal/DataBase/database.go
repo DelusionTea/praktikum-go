@@ -1,4 +1,4 @@
-package DataBase
+package database
 
 import (
 	"context"
@@ -37,8 +37,9 @@ func SetUpDataBase(db *sql.DB, ctx context.Context) error {
 }
 
 type PGDataBase struct {
-	conn    *sql.DB
-	baseURL string
+	conn       *sql.DB
+	baseURL    string
+	DeleteFlag bool `json:"delete_flag"`
 }
 
 func NewDatabase(baseURL string, db *sql.DB) *PGDataBase {
@@ -124,7 +125,7 @@ func (db *PGDataBase) GetUserURL(ctx context.Context, user string) ([]handlers.R
 	return result, nil
 }
 
-func (db *PGDataBase) AddManyURL(ctx context.Context, urls []handlers.ManyPostURL, user string) ([]handlers.ManyPostResponse, error) {
+func (db *PGDataBase) AddURLs(ctx context.Context, urls []handlers.ManyPostURL, user string) ([]handlers.ManyPostResponse, error) {
 
 	result := []handlers.ManyPostResponse{}
 	tx, err := db.conn.Begin()
@@ -183,4 +184,19 @@ func (db *PGDataBase) isOwner(ctx context.Context, url string, user string) bool
 	result := ""
 	query.Scan(&result)
 	return result == user
+}
+
+func (db *PGDataBase) DeleteURLs(ctx context.Context, urls []string, user string) error {
+	sql := `UPDATE urls SET is_deleted = true WHERE short_url = ANY ($1);`
+	urlsToDelete := []string{}
+	for _, url := range urls {
+		if db.isOwner(ctx, url, user) {
+			urlsToDelete = append(urlsToDelete, url)
+		}
+	}
+	_, err := db.conn.ExecContext(ctx, sql, pq.Array(urlsToDelete))
+	if err != nil {
+		return err
+	}
+	return nil
 }
