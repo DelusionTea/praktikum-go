@@ -56,11 +56,11 @@ type ResponseGetURL struct {
 	OriginalURL string `json:"original_url"`
 }
 
-func New(repo ShorterInterface, baseURL string, wp workers.Workers) *Handler {
+func New(repo ShorterInterface, baseURL string, wp *workers.Workers) *Handler {
 	return &Handler{
 		repo:    repo,
 		baseURL: baseURL,
-		wp:      wp,
+		wp:      *wp,
 	}
 }
 

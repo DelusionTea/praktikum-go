@@ -24,7 +24,7 @@ func setupRouter(repo handlers.ShorterInterface, conf *conf.Config, wp *workers.
 	router.Use(middleware.GzipDecodeMiddleware())
 	router.Use(middleware.CookieMiddleware(conf))
 	//router.Use(gzip.Gzip(gzip.DefaultCompression))
-	handler := handlers.New(repo, conf.BaseURL, *wp)
+	handler := handlers.New(repo, conf.BaseURL, wp)
 
 	router.GET("/:id", handler.HandlerGetURLByID)
 	router.POST("/", handler.HandlerCreateShortURL)
@@ -45,7 +45,7 @@ func main() {
 	cfg := conf.GetConfig()
 	var handler *gin.Engine
 	//db, err := sql.Open("postgres", cfg.DataBase)
-	wp := workers.New(ctx, cfg.NumbWorkers, cfg.WorekerBuff)
+	wp := workers.New(ctx, cfg.NumbWorkers, cfg.WorkerBuff)
 	if cfg.DataBase != "" {
 		//handler = setupRouter(DataBase.NewDatabase(cfg.BaseURL, cfg.DataBase))
 		db, err := sql.Open("postgres", cfg.DataBase)

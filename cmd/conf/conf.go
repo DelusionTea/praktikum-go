@@ -18,7 +18,7 @@ type Config struct {
 	DataBase      string `env:"DATABASE_DSN" envDefault:"" `
 	Key           []byte
 	NumbWorkers   int `env:"NUMBER_OF_WORKERS"`
-	WorekerBuff   int `env:"WORKERS_BUFFER"`
+	WorkerBuff    int `env:"WORKERS_BUFFER"`
 }
 
 func GetConfig() *Config {
