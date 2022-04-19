@@ -8,15 +8,19 @@ import (
 )
 
 const (
-	FilePerm = 0755
+	FilePerm    = 0755
+	NumbWorkers = 10
+	WorkerBuff  = 100
 )
 
 type Config struct {
 	ServerAddress string `env:"SERVER_ADDRESS" envDefault:"localhost:8080"`
 	BaseURL       string `env:"BASE_URL" envDefault:"http://localhost:8080/"`
 	FilePath      string `env:"FILE_STORAGE_PATH" envDefault:"sorter.log"`
-	DataBase      string `env:"DATABASE_DSN" envDefault: `
+	DataBase      string `env:"DATABASE_DSN" envDefault:"" `
 	Key           []byte
+	NumbWorkers   int `env:"NUMBER_OF_WORKERS"`
+	WorkerBuff    int `env:"WORKERS_BUFFER"`
 }
 
 func GetConfig() *Config {
@@ -46,6 +50,8 @@ func GetConfig() *Config {
 	}
 
 	instance.Key = make([]byte, 16)
+	instance.NumbWorkers = NumbWorkers
+	instance.WorkerBuff = WorkerBuff
 	log.Flags()
 	log.Println(instance.BaseURL)
 	log.Println(instance.ServerAddress)
