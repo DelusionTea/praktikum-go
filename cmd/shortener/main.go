@@ -46,6 +46,9 @@ func main() {
 	var handler *gin.Engine
 	//db, err := sql.Open("postgres", cfg.DataBase)
 	wp := workers.New(ctx, cfg.NumbWorkers, cfg.WorkerBuff)
+	go func() {
+		wp.Run(ctx)
+	}()
 	if cfg.DataBase != "" {
 		//handler = setupRouter(DataBase.NewDatabase(cfg.BaseURL, cfg.DataBase))
 		db, err := sql.Open("postgres", cfg.DataBase)
