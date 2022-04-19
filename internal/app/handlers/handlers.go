@@ -234,6 +234,6 @@ func (h *Handler) DeleteBatch(c *gin.Context) {
 			})
 		}(item)
 	}
-
+	c.String(http.StatusAccepted, "")
 	c.Status(http.StatusAccepted)
 }
