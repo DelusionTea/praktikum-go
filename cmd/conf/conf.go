@@ -50,6 +50,8 @@ func GetConfig() *Config {
 	}
 
 	instance.Key = make([]byte, 16)
+	instance.NumbWorkers = NumbWorkers
+	instance.WorkerBuff = WorkerBuff
 	log.Flags()
 	log.Println(instance.BaseURL)
 	log.Println(instance.ServerAddress)
