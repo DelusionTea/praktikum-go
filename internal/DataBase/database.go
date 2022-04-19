@@ -92,9 +92,11 @@ func (db *PGDataBase) GetURL(ctx context.Context, shortURL string) (string, erro
 	result := GetURLdata{}
 	query.Scan(&result.OriginURL, &result.IsDeleted)
 	if result.OriginURL == "" {
-		return "", errors.New("not found")
+		return "", handlers.NewErrorWithDB(errors.New("not found"), "Not found")
 	}
-
+	if result.IsDeleted {
+		return "", handlers.NewErrorWithDB(errors.New("Deleted"), "Deleted")
+	}
 	return result.OriginURL, nil
 }
 
