@@ -8,7 +8,9 @@ import (
 )
 
 const (
-	FilePerm = 0755
+	FilePerm    = 0755
+	NumbWorkers = 10
+	WorkerBuff  = 100
 )
 
 type Config struct {
